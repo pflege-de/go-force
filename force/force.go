@@ -5,6 +5,7 @@ package force
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 )
 
@@ -56,11 +57,15 @@ func Create(version, clientId, clientSecret, userName, password, securityToken,
 	return forceApi, nil
 }
 
-func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string) (*ForceApi, error) {
+func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, httpClient *http.Client) (*ForceApi, error) {
 	oauth := &forceOauth{
 		clientId:    clientId,
 		AccessToken: accessToken,
 		InstanceUrl: instanceUrl,
+	}
+
+	if httpClient == nil {
+		httpClient = http.DefaultClient
 	}
 
 	forceApi := &ForceApi{
@@ -69,6 +74,7 @@ func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string) (
 		apiSObjectDescriptions: make(map[string]*SObjectDescription),
 		apiVersion:             version,
 		oauth:                  oauth,
+		httpClient:             httpClient,
 	}
 
 	// We need to check for oath correctness here, since we are not generating the token ourselves.

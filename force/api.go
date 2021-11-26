@@ -2,6 +2,7 @@ package force
 
 import (
 	"fmt"
+	"net/http"
 )
 
 const (
@@ -27,6 +28,8 @@ type ForceApi struct {
 	apiMaxBatchSize        int64
 	logger                 ForceApiLogger
 	logPrefix              string
+
+	httpClient *http.Client
 }
 
 type RefreshTokenResponse struct {
