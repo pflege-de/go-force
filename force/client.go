@@ -47,11 +47,7 @@ func (forceApi *ForceApi) Delete(path string, params url.Values) error {
 	return forceApi.request("DELETE", path, params, nil, nil)
 }
 
-func (forceApi *ForceApi) request(method, path string, params url.Values, payload, out interface{}) error {
-	if err := forceApi.oauth.Validate(); err != nil {
-		return fmt.Errorf("Error creating %v request: %v", method, err)
-	}
-
+func (forceApi *ForceApi) NewRequest(method, path string, params url.Values) (*http.Request, error) {
 	// Build Uri
 	var uri bytes.Buffer
 	uri.WriteString(forceApi.oauth.InstanceUrl)
@@ -61,22 +57,10 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 		uri.WriteString(params.Encode())
 	}
 
-	// Build body
-	var body io.Reader
-	if payload != nil {
-
-		jsonBytes, err := forcejson.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("Error marshaling encoded payload: %v", err)
-		}
-
-		body = bytes.NewReader(jsonBytes)
-	}
-
 	// Build Request
-	req, err := http.NewRequest(method, uri.String(), body)
+	req, err := http.NewRequest(method, uri.String(), nil)
 	if err != nil {
-		return fmt.Errorf("Error creating %v request: %v", method, err)
+		return nil, fmt.Errorf("Error creating %v request: %v", method, err)
 	}
 
 	// Add Headers
@@ -84,6 +68,32 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", responseType)
 	req.Header.Set("Authorization", fmt.Sprintf("%v %v", "Bearer", forceApi.oauth.AccessToken))
+
+	return req, nil
+}
+
+func (forceApi *ForceApi) request(method, path string, params url.Values, payload, out interface{}) error {
+	if err := forceApi.oauth.Validate(); err != nil {
+		return fmt.Errorf("Error creating %v request: %v", method, err)
+	}
+
+	req, err := forceApi.NewRequest(method, path, params)
+	if err != nil {
+		return err
+	}
+
+	// Build body
+	var body io.ReadCloser
+	if payload != nil {
+
+		jsonBytes, err := forcejson.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("Error marshaling encoded payload: %v", err)
+		}
+
+		body = ioutil.NopCloser(bytes.NewReader(jsonBytes))
+	}
+	req.Body = body
 
 	// Send
 	forceApi.traceRequest(req)
