@@ -1,14 +1,13 @@
 # go-force
 
-<p align="center">
-  <a href="https://goreportcard.com/report/github.com/pflege-de/go-force"><img src="https://goreportcard.com/badge/github.com/pflege-de/go-force" alt="Go Report Card"></a>
-  <a href="https://github.com/pflege-de/go-force/actions?query=workflow%3Abuild"><img src="https://github.com/pflege-de/go-force/workflows/build/badge.svg" alt="build status"></a>
-  <a href="https://github.com/pflege-de/go-force/blob/master/go.mod"><img src="https://img.shields.io/github/go-mod/go-version/pflege-de/go-force" alt="Go version"></a>
-  <a href="https://github.com/pflege-de/go-force/releases"><img src="https://img.shields.io/github/v/release/pflege-de/go-force.svg" alt="Current Release"></a>
-  <a href="https://godoc.org/github.com/pflege-de/go-force"><img src="https://godoc.org/github.com/pflege-de/go-force?status.svg" alt="godoc"></a>
-  [![Go Coverage](https://github.com/pflege-de/go-force/wiki/coverage.svg)](https://raw.githack.com/wiki/pflege-de/go-force/coverage.html)
-  <a href="https://github.com/pflege-de/go-force/blob/master/LICENSE"><img src="https://img.shields.io/github/license/pflege-de/go-force" alt="License"></a>
-</p>
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/pflege-de/go-force)](https://goreportcard.com/report/github.com/pflege-de/go-force)
+[![build status](https://github.com/pflege-de/go-force/workflows/build/badge.svg)](https://github.com/pflege-de/go-force/actions?query=workflow%3Abuild)
+[![Go version](https://img.shields.io/github/go-mod/go-version/pflege-de/go-force)](https://github.com/pflege-de/go-force/blob/master/go.mod)
+[![Current Release](https://img.shields.io/github/v/release/pflege-de/go-force.svg)](https://github.com/pflege-de/go-force/releases)
+[![godoc](https://godoc.org/github.com/pflege-de/go-force?status.svg)](https://godoc.org/github.com/pflege-de/go-force)
+[![Go Coverage](https://github.com/pflege-de/go-force/wiki/coverage.svg)](https://raw.githack.com/wiki/pflege-de/go-force/coverage.html)
+[![License](https://img.shields.io/github/license/pflege-de/go-force)](https://github.com/pflege-de/go-force/blob/master/LICENSE)
 
 [Golang](http://golang.org/) API wrapper for [Force.com](http://www.force.com/), [Salesforce.com](http://www.salesforce.com/)
 
