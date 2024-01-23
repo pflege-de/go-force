@@ -35,7 +35,7 @@ func (forceApi *ForceApi) DescribeSObject(in SObject) (resp *SObjectDescription,
 		// Attempt retrieval from api
 		sObjectMetaData, ok := forceApi.apiSObjects[in.ApiName()]
 		if !ok {
-			err = fmt.Errorf("Unable to find metadata for object: %v", in.ApiName())
+			err = fmt.Errorf("unable to find metadata for object: %v", in.ApiName())
 			return
 		}
 

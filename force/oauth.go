@@ -35,7 +35,7 @@ type forceOauth struct {
 
 func (oauth *forceOauth) Validate() error {
 	if oauth == nil || len(oauth.InstanceUrl) == 0 || len(oauth.AccessToken) == 0 {
-		return fmt.Errorf("Invalid Force Oauth Object: %#v", oauth)
+		return fmt.Errorf("invalid Force Oauth Object: %#v", oauth)
 	}
 
 	return nil
@@ -101,7 +101,7 @@ func (oauth *forceOauth) Authenticate() error {
 	}
 
 	if err := json.Unmarshal(respBytes, oauth); err != nil {
-		return fmt.Errorf("Unable to unmarshal authentication response: %v", err)
+		return fmt.Errorf("unable to unmarshal authentication response: %v", err)
 	}
 
 	return nil

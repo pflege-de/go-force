@@ -30,11 +30,7 @@ func (e ApiErrors) String() string {
 }
 
 func (e ApiErrors) Validate() bool {
-	if len(e) != 0 {
-		return true
-	}
-
-	return false
+	return len(e) != 0
 }
 
 func (e ApiError) Error() string {
