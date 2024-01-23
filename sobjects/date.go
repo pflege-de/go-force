@@ -2,7 +2,7 @@ package sobjects
 
 import (
 	"fmt"
-	"github.com/nimajalali/go-force/forcejson"
+	"github.com/pflege-de/go-force/forcejson"
 	"time"
 )
 

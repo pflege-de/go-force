@@ -1,8 +1,10 @@
 package force
 
 import (
-	"github.com/nimajalali/go-force/sobjects"
+	"net/http"
 	"testing"
+
+	"github.com/pflege-de/go-force/sobjects"
 )
 
 func TestCreateWithAccessToken(t *testing.T) {
@@ -34,7 +36,7 @@ func TestCreateWithAccessToken(t *testing.T) {
 	}
 
 	// We shouldn't hit any errors creating a new force instance and manually passing in these oauth details now.
-	newForceApi, err := CreateWithAccessToken(testVersion, testClientId, forceApi.oauth.AccessToken, forceApi.oauth.InstanceUrl)
+	newForceApi, err := CreateWithAccessToken(testVersion, testClientId, forceApi.oauth.AccessToken, forceApi.oauth.InstanceUrl, http.DefaultClient)
 	if err != nil {
 		t.Fatalf("Unable to create new force api instance using pre-defined oauth details: %#v", err)
 	}

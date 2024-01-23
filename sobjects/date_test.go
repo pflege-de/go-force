@@ -1,7 +1,7 @@
 package sobjects
 
 import (
-	"github.com/nimajalali/go-force/forcejson"
+	"github.com/pflege-de/go-force/forcejson"
 	"reflect"
 	"testing"
 	"time"
