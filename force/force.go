@@ -19,82 +19,116 @@ const (
 	testEnvironment   = "production"
 )
 
-func Create(version, clientId, clientSecret, userName, password, securityToken,
-	environment string) (*ForceApi, error) {
-	oauth := &forceOauth{
-		clientId:      clientId,
-		clientSecret:  clientSecret,
-		userName:      userName,
-		password:      password,
-		securityToken: securityToken,
-		environment:   environment,
-	}
+type APIConfig func(*ForceApi)
 
-	forceApi := &ForceApi{
+func WithClient(c *http.Client) APIConfig {
+	return func(f *ForceApi) {
+		f.httpClient = c
+	}
+}
+
+func WithOAuth(version, clientId, clientSecret, userName, password, securityToken, environment string) APIConfig {
+	return func(f *ForceApi) {
+		f.oauth = &forceOauth{
+			clientId:      clientId,
+			clientSecret:  clientSecret,
+			userName:      userName,
+			password:      password,
+			securityToken: securityToken,
+			environment:   environment,
+		}
+	}
+}
+
+func WithAccessToken(clientId, accessToken, instanceUrl string) APIConfig {
+	return func(f *ForceApi) {
+		f.oauth = &forceOauth{
+			clientId:    clientId,
+			AccessToken: accessToken,
+			InstanceUrl: instanceUrl,
+		}
+	}
+}
+
+func WithRefreshToken(clientId, clientSecret, refreshToken string) APIConfig {
+	return func(f *ForceApi) {
+		if f.oauth == nil {
+			f.oauth = &forceOauth{
+				clientId:     clientId,
+				clientSecret: clientSecret,
+				refreshToken: refreshToken,
+			}
+			return
+		}
+
+		f.oauth.clientId = clientId
+		f.oauth.clientSecret = clientSecret
+		f.oauth.refreshToken = refreshToken
+	}
+}
+
+func NewClient(cfg ...APIConfig) (*ForceApi, error) {
+	f := &ForceApi{
 		apiResources:           make(map[string]string),
 		apiSObjects:            make(map[string]*SObjectMetaData),
 		apiSObjectDescriptions: make(map[string]*SObjectDescription),
 		apiVersion:             version,
-		oauth:                  oauth,
+		httpClient:             http.DefaultClient,
+	}
+
+	for _, c := range cfg {
+		c(f)
+	}
+
+	if f.oauth == nil {
+		return nil, fmt.Errorf("missing OAuth config")
+	}
+
+	var oauthInitMethod = f.oauth.Authenticate
+	if f.oauth.AccessToken != "" {
+		if f.oauth.refreshToken != "" {
+			if err := f.RefreshToken(); err != nil {
+				return nil, fmt.Errorf("failed to refresh token: %w", err)
+			}
+		}
+		oauthInitMethod = f.oauth.Validate
 	}
 
 	// Init oauth
-	err := forceApi.oauth.Authenticate()
+	err := oauthInitMethod()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to initialize oauth: %w", err)
 	}
 
 	// Init Api Resources
-	err = forceApi.getApiResources()
+	err = f.getApiResources()
 	if err != nil {
 		return nil, err
 	}
-	err = forceApi.getApiSObjects()
+	err = f.getApiSObjects()
 	if err != nil {
 		return nil, err
 	}
 
-	return forceApi, nil
+	return f, nil
+}
+
+func Create(version, clientId, clientSecret, userName, password, securityToken,
+	environment string) (*ForceApi, error) {
+	return NewClient(
+		WithOAuth(version, clientId, clientSecret, userName, password, securityToken, environment),
+		WithClient(http.DefaultClient),
+	)
 }
 
 func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, httpClient *http.Client) (*ForceApi, error) {
-	oauth := &forceOauth{
-		clientId:    clientId,
-		AccessToken: accessToken,
-		InstanceUrl: instanceUrl,
-	}
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-
-	forceApi := &ForceApi{
-		apiResources:           make(map[string]string),
-		apiSObjects:            make(map[string]*SObjectMetaData),
-		apiSObjectDescriptions: make(map[string]*SObjectDescription),
-		apiVersion:             version,
-		oauth:                  oauth,
-		httpClient:             httpClient,
-	}
-
-	// We need to check for oath correctness here, since we are not generating the token ourselves.
-	if err := forceApi.oauth.Validate(); err != nil {
-		return nil, err
-	}
-
-	// Init Api Resources
-	err := forceApi.getApiResources()
-	if err != nil {
-		return nil, err
-	}
-	err = forceApi.getApiSObjects()
-	if err != nil {
-		return nil, err
-	}
-
-	return forceApi, nil
+	return NewClient(
+		WithAccessToken(clientId, accessToken, instanceUrl),
+		WithClient(httpClient),
+	)
 }
 
+// TODO: This likely never has worked because the refresh token passed in forceApi.RefreshToken() is always an empty string?
 func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) (*ForceApi, error) {
 	oauth := &forceOauth{
 		clientId:    clientId,
