@@ -1,5 +1,5 @@
-go-force
-======
+# go-force
+
 <p align="center">
   <a href="https://goreportcard.com/report/github.com/pflege-de/go-force"><img src="https://goreportcard.com/badge/github.com/pflege-de/go-force" alt="Go Report Card"></a>
   <a href="https://github.com/pflege-de/go-force/actions?query=workflow%3Abuild"><img src="https://github.com/pflege-de/go-force/workflows/build/badge.svg" alt="build status"></a>
@@ -12,12 +12,15 @@ go-force
 
 [Golang](http://golang.org/) API wrapper for [Force.com](http://www.force.com/), [Salesforce.com](http://www.salesforce.com/)
 
-Installation
-============
+
+This repo is based on https://github.com/nimajalali/go-force which seems to be dormant with the last commit 4 years ago at this time (01/2024).
+
+## Installation
+
 	go get github.com/pflege-de/go-force/force
 
-Example
-============
+## Example
+
 ```go
 package main
 
@@ -80,8 +83,8 @@ func main() {
 	fmt.Printf("%#v", someCustomSObjects)
 }
 ```
-Documentation 
-=======
+
+## Documentation 
 
 * [Package Reference](http://godoc.org/github.com/pflege-de/go-force/force)
 * [Force.com API Reference](http://www.salesforce.com/us/developer/docs/api_rest/)
