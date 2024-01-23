@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 const (
@@ -17,6 +18,10 @@ const (
 	testPassword      = "golangrocks3"
 	testSecurityToken = "kAlicVmti9nWRKRiWG3Zvqtte"
 	testEnvironment   = "production"
+)
+
+const (
+	DefaultAPIVersion = "v58.0"
 )
 
 type APIConfig func(*ForceApi)
@@ -37,6 +42,14 @@ func WithOAuth(version, clientId, clientSecret, userName, password, securityToke
 			securityToken: securityToken,
 			environment:   environment,
 		}
+	}
+}
+
+var versionCheck = regexp.MustCompile(`v\d+\.\d+`)
+
+func WithApiVersion(v string) APIConfig {
+	return func(f *ForceApi) {
+		f.apiVersion = v
 	}
 }
 
@@ -72,12 +85,16 @@ func NewClient(cfg ...APIConfig) (*ForceApi, error) {
 		apiResources:           make(map[string]string),
 		apiSObjects:            make(map[string]*SObjectMetaData),
 		apiSObjectDescriptions: make(map[string]*SObjectDescription),
-		apiVersion:             version,
+		apiVersion:             "v58.0",
 		httpClient:             http.DefaultClient,
 	}
 
 	for _, c := range cfg {
 		c(f)
+	}
+
+	if !versionCheck.MatchString(f.apiVersion) {
+		return nil, fmt.Errorf("invalid API version '%s' specified", f.apiVersion)
 	}
 
 	if f.oauth == nil {
@@ -140,7 +157,7 @@ func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) 
 		apiResources:           make(map[string]string),
 		apiSObjects:            make(map[string]*SObjectMetaData),
 		apiSObjectDescriptions: make(map[string]*SObjectDescription),
-		apiVersion:             version,
+		apiVersion:             DefaultAPIVersion,
 		oauth:                  oauth,
 	}
 
