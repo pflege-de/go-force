@@ -10,7 +10,7 @@ type Limit struct {
 func (forceApi *ForceApi) GetLimits() (limits Limits, err error) {
 	uri := forceApi.apiResources[limitsKey]
 
-	limits = Limits{}
+	limits = make(Limits)
 	err = forceApi.Get(uri, nil, limits)
 
 	return
