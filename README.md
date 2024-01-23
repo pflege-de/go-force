@@ -6,8 +6,8 @@
   <a href="https://github.com/pflege-de/go-force/blob/master/go.mod"><img src="https://img.shields.io/github/go-mod/go-version/pflege-de/go-force" alt="Go version"></a>
   <a href="https://github.com/pflege-de/go-force/releases"><img src="https://img.shields.io/github/v/release/pflege-de/go-force.svg" alt="Current Release"></a>
   <a href="https://godoc.org/github.com/pflege-de/go-force"><img src="https://godoc.org/github.com/pflege-de/go-force?status.svg" alt="godoc"></a>
-  <a href="https://gocover.io/github.com/pflege-de/go-force/force"><img src="https://gocover.io/_badge/github.com/pflege-de/go-force/force" alt="Coverage"></a>
-  <a href="https://github.com/pflege-de/go-force/blob/master/LICENSE"><img src="https://img.shields.io/github/license/nimajalali/go-force" alt="License"></a>
+  [![Go Coverage](https://github.com/pflege-de/go-force/wiki/coverage.svg)](https://raw.githack.com/wiki/pflege-de/go-force/coverage.html)
+  <a href="https://github.com/pflege-de/go-force/blob/master/LICENSE"><img src="https://img.shields.io/github/license/pflege-de/go-force" alt="License"></a>
 </p>
 
 [Golang](http://golang.org/) API wrapper for [Force.com](http://www.force.com/), [Salesforce.com](http://www.salesforce.com/)
