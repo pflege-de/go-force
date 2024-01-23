@@ -3,7 +3,7 @@ package force
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -86,7 +86,7 @@ func (oauth *forceOauth) Authenticate() error {
 	}
 	defer resp.Body.Close()
 
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("Error reading authentication response bytes: %v", err)
 	}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -91,7 +90,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 			return fmt.Errorf("Error marshaling encoded payload: %v", err)
 		}
 
-		body = ioutil.NopCloser(bytes.NewReader(jsonBytes))
+		body = io.NopCloser(bytes.NewReader(jsonBytes))
 	}
 	req.Body = body
 
@@ -109,7 +108,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 		return nil
 	}
 
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("Error reading response bytes: %v", err)
 	}
