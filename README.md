@@ -6,7 +6,7 @@
 [![Go version](https://img.shields.io/github/go-mod/go-version/pflege-de/go-force)](https://github.com/pflege-de/go-force/blob/master/go.mod)
 [![Current Release](https://img.shields.io/github/v/release/pflege-de/go-force.svg)](https://github.com/pflege-de/go-force/releases)
 [![godoc](https://godoc.org/github.com/pflege-de/go-force?status.svg)](https://godoc.org/github.com/pflege-de/go-force)
-[![Go Coverage](https://github.com/pflege-de/go-force/wiki/coverage.svg)](https://raw.githack.com/wiki/pflege-de/go-force/coverage.html)
+<!-- [![Go Coverage](https://github.com/pflege-de/go-force/wiki/coverage.svg)](https://raw.githack.com/wiki/pflege-de/go-force/coverage.html) -->
 [![License](https://img.shields.io/github/license/pflege-de/go-force)](https://github.com/pflege-de/go-force/blob/master/LICENSE)
 
 [Golang](http://golang.org/) API wrapper for [Force.com](http://www.force.com/), [Salesforce.com](http://www.salesforce.com/)

@@ -4,7 +4,7 @@ jobs:
   build-test:
     strategy:
       matrix:
-        go-version: [1.20.x, 1.21.x]
+        go-version: ["1.20", 1.21.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -22,13 +22,13 @@ jobs:
         with:
           name: Go-results-${{ matrix.go-version }}
           path: TestResults-${{ matrix.go-version }}.json
-      - name: Update coverage report
-        uses: ncruces/go-coverage-report@v0
-        with:
-          report: true
-          chart: true
-          amend: true
-        if: |
-          matrix.os == 'ubuntu-latest' &&
-          github.event_name == 'push'  
-        continue-on-error: true
+      # - name: Update coverage report
+      #   uses: ncruces/go-coverage-report@v0
+      #   with:
+      #     report: true
+      #     chart: true
+      #     amend: true
+      #   if: |
+      #     matrix.os == 'ubuntu-latest' &&
+      #     github.event_name == 'push'  
+      #   continue-on-error: true
