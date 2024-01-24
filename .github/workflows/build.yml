@@ -16,12 +16,12 @@ jobs:
       - name: Install dependencies
         run: go mod download 
       - name: Test with Go
-        run: go test -cover -json ./... > TestResults-${{ matrix.go-version }}.json
+        run: go test -cover -json ./... > TestResults-${{ matrix.os }}-${{ matrix.go-version }}.json
       - name: Upload Go test results
         uses: actions/upload-artifact@v4
         with:
-          name: Go-results-${{ matrix.go-version }}
-          path: TestResults-${{ matrix.go-version }}.json
+          name: Go-results-${{ matrix.os }}-${{ matrix.go-version }}
+          path: TestResults-${{ matrix.os }}-${{ matrix.go-version }}.json
       # - name: Update coverage report
       #   uses: ncruces/go-coverage-report@v0
       #   with:
