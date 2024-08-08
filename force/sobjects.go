@@ -20,12 +20,12 @@ type SObjectResponse struct {
 	Success bool      `force:"success,omitempty"`
 }
 
-func (forceAPI *ForceApi) DescribeSObjects() (map[string]*SObjectMetaData, error) {
-	if err := forceAPI.getApiSObjects(); err != nil {
+func (forceApi *ForceApi) DescribeSObjects() (map[string]*SObjectMetaData, error) {
+	if err := forceApi.getApiSObjects(); err != nil {
 		return nil, err
 	}
 
-	return forceAPI.apiSObjects, nil
+	return forceApi.apiSObjects, nil
 }
 
 func (forceApi *ForceApi) DescribeSObject(in SObject) (resp *SObjectDescription, err error) {
