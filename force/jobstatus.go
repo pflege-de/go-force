@@ -2,7 +2,6 @@ package force
 
 import (
 	"fmt"
-	"github.com/pflege-de/go-force/force/errors"
 	"regexp"
 	"time"
 )
@@ -31,7 +30,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 
 				switch status.State {
 				case "Failed":
-					jobFailed := errors.FailedResultsError{}
+					jobFailed := FailedResultsError{}
 					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
 					err = forceApi.Get(failedResultURI, nil, jobFailed)
 					if err != nil {
