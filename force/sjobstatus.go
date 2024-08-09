@@ -9,13 +9,13 @@ import (
 )
 
 type Job struct {
-	info         *JobInfo
-	operation    JobOperation
-	forceApi     ForceApi
-	objectMapper ObjectMapper
-	client       BulkClient
-	bytes        []byte
-	apiVersion   string
+	Info         *JobInfo
+	Operation    JobOperation
+	ForceApi     ForceApi
+	ObjectMapper ObjectMapper
+	Client       BulkClient
+	Bytes        []byte
+	ApiVersion   string
 }
 
 type BulkClient interface {
