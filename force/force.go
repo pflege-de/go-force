@@ -1,4 +1,4 @@
-// A Go package that provides bindings to the force.com REST API
+// Package force A Go package that provides bindings to the force.com REST API
 //
 // See http://www.salesforce.com/us/developer/docs/api_rest/
 package force
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	testVersion       = "v36.0"
+	testVersion       = "v58.0"
 	testClientId      = "3MVG9A2kN3Bn17hs8MIaQx1voVGy662rXlC37svtmLmt6wO_iik8Hnk3DlcYjKRvzVNGWLFlGRH1ryHwS217h"
 	testClientSecret  = "4165772184959202901"
 	testUserName      = "go-force@jalali.net"
@@ -117,7 +117,7 @@ func NewClient(cfg ...APIConfig) (*ForceApi, error) {
 		return nil, fmt.Errorf("failed to initialize oauth: %w", err)
 	}
 
-	// Init Api Resources
+	// Init ForceApi Resources
 	err = f.getApiResources()
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) 
 		return nil, err
 	}
 
-	// Init Api Resources
+	// Init ForceApi Resources
 	err := forceApi.getApiResources()
 	if err != nil {
 		return nil, err
@@ -195,7 +195,7 @@ func createTest() *ForceApi {
 	return forceApi
 }
 
-type ForceApiLogger interface {
+type ApiLogger interface {
 	Printf(format string, v ...interface{})
 }
 
@@ -206,10 +206,10 @@ type ForceApiLogger interface {
 //
 // Use TraceOn if you want to spy on the ForceApi requests and responses.
 //
-// Note that the base log.Logger type satisfies ForceApiLogger, but adapters
+// Note that the base log.Logger type satisfies ApiLogger, but adapters
 // can easily be written for other logging packages (e.g., the
 // golang-sanctioned glog framework).
-func (forceApi *ForceApi) TraceOn(prefix string, logger ForceApiLogger) {
+func (forceApi *ForceApi) TraceOn(prefix string, logger ApiLogger) {
 	forceApi.logger = logger
 	if prefix == "" {
 		forceApi.logPrefix = prefix
