@@ -3,7 +3,6 @@ package force
 import (
 	"bytes"
 	"fmt"
-	"github.com/pflege-de/go-force/force/errors"
 	"net/url"
 	"strings"
 )
@@ -16,9 +15,9 @@ type SObject interface {
 
 // SObjectResponse received from force.com API after insert of an sobject.
 type SObjectResponse struct {
-	Id      string           `force:"id,omitempty"`
-	Errors  errors.ApiErrors `force:"error,omitempty"` //TODO: Not sure if ApiErrors is the right object
-	Success bool             `force:"success,omitempty"`
+	Id      string    `force:"id,omitempty"`
+	Errors  ApiErrors `force:"error,omitempty"` //TODO: Not sure if ApiErrors is the right object
+	Success bool      `force:"success,omitempty"`
 }
 
 func (forceApi *ForceApi) DescribeSObjects() (map[string]*SObjectMetaData, error) {

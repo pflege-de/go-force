@@ -3,7 +3,6 @@ package force
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pflege-de/go-force/force/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -42,7 +41,7 @@ func (oauth *forceOauth) Validate() error {
 	return nil
 }
 
-func (oauth *forceOauth) Expired(apiErrors errors.ApiErrors) bool {
+func (oauth *forceOauth) Expired(apiErrors ApiErrors) bool {
 	for _, err := range apiErrors {
 		if err.ErrorCode == invalidSessionErrorCode {
 			return true
@@ -93,7 +92,7 @@ func (oauth *forceOauth) Authenticate() error {
 	}
 
 	// Attempt to parse response as a force.com api error
-	apiError := &errors.ApiError{}
+	apiError := &ApiError{}
 	if err := json.Unmarshal(respBytes, apiError); err == nil {
 		// Check if api error is valid
 		if apiError.Validate() {

@@ -3,7 +3,6 @@ package force
 import (
 	"bytes"
 	"fmt"
-	"github.com/pflege-de/go-force/force/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -125,7 +124,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	}
 
 	// Attempt to parse response as a force.com api error before returning object unmarshal err
-	apiErrors := errors.ApiErrors{}
+	apiErrors := ApiErrors{}
 	if marshalErr := forcejson.Unmarshal(respBytes, &apiErrors); marshalErr == nil {
 		if apiErrors.Validate() {
 			// Check if error is oauth token expired

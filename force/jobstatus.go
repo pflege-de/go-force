@@ -3,26 +3,25 @@ package force
 import (
 	"fmt"
 	"github.com/pflege-de/go-force/force/errors"
-	"github.com/pflege-de/go-force/force/job"
 	"regexp"
 	"time"
 )
 
 var isCsvError = regexp.MustCompile(`[ -~].*CSV[ -~].*`).MatchString
 
-func (forceApi *ForceApi) CheckJobStatus(op job.Operation, tickerSeconds time.Duration, bytesCount int) (job.Operation, error) {
+func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration, bytesCount int) (JobOperation, error) {
 	tt := time.NewTicker(tickerSeconds * time.Second)
 	defer tt.Stop()
 
 	for _, jobID := range op.JobIDs {
 		statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
-		var status *job.Info
+		var status *JobInfo
 
 	STATUS:
 		for {
 			select {
 			case <-tt.C:
-				status = &job.Info{}
+				status = &JobInfo{}
 				err := forceApi.Get(statusURI, nil, status)
 				if err != nil {
 					return op, err
