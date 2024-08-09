@@ -3,9 +3,26 @@ package force
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"regexp"
 	"time"
 )
+
+type Job struct {
+	info         *JobInfo
+	operation    JobOperation
+	forceApi     ForceApi
+	objectMapper ObjectMapper
+	client       BulkClient
+	bytes        []byte
+	apiVersion   string
+}
+
+type BulkClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type ObjectMapper func(objects any) [][]string
 
 type JobInfo struct {
 	Id                     string `json:"id"`
