@@ -2,75 +2,27 @@ package force
 
 import (
 	"fmt"
-	"io"
-	"net/http"
+	"github.com/pflege-de/go-force/force/errors"
+	"github.com/pflege-de/go-force/force/job"
 	"regexp"
 	"time"
 )
 
-type Job struct {
-	Info         *JobInfo
-	Operation    JobOperation
-	ForceApi     ForceApi
-	ObjectMapper ObjectMapper
-	Client       BulkClient
-	Bytes        []byte
-	ApiVersion   string
-}
-
-type BulkClient interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
-type ObjectMapper func(objects any) [][]string
-
-type JobInfo struct {
-	Id                     string `json:"id"`
-	State                  string `json:"state"`
-	NumberRecordsFailed    int    `json:"numberRecordsFailed"`
-	NumberRecordsProcessed int    `json:"numberRecordsProcessed"`
-	JobMessage             string `json:"errorMessage"`
-	ContentURL             string `json:"contentUrl"`
-}
-
-type JobOperation struct {
-	Operation string
-	Object    string
-	Fields    []string
-
-	NumberRecordsFailed    int
-	NumberRecordsProcessed int
-	ResponseMessages       []string
-	JobIDs                 []string
-	WriteLine              func(w io.Writer) bool
-	ProgressReporter       func(msg string, bytesTransferred int)
-}
-
-type FailedResultsError struct {
-	ApiError
-	SfId string `json:"sf__Id"`
-}
-
-func (e FailedResultsError) Validate() bool {
-	return len(e.Fields) != 0 || len(e.Message) != 0 || len(e.ErrorCode) != 0 ||
-		len(e.ErrorName) != 0 || len(e.ErrorDescription) != 0 || len(e.SfId) != 0
-}
-
 var isCsvError = regexp.MustCompile(`[ -~].*CSV[ -~].*`).MatchString
 
-func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration, bytesCount int) (JobOperation, error) {
+func (forceApi *ForceApi) CheckJobStatus(op job.Operation, tickerSeconds time.Duration, bytesCount int) (job.Operation, error) {
 	tt := time.NewTicker(tickerSeconds * time.Second)
 	defer tt.Stop()
 
 	for _, jobID := range op.JobIDs {
 		statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
-		var status *JobInfo
+		var status *job.Info
 
 	STATUS:
 		for {
 			select {
 			case <-tt.C:
-				status = &JobInfo{}
+				status = &job.Info{}
 				err := forceApi.Get(statusURI, nil, status)
 				if err != nil {
 					return op, err
@@ -80,7 +32,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 
 				switch status.State {
 				case "Failed":
-					jobFailed := FailedResultsError{}
+					jobFailed := errors.FailedResultsError{}
 					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
 					err = forceApi.Get(failedResultURI, nil, jobFailed)
 					if err != nil {
