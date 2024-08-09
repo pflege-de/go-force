@@ -1,11 +1,11 @@
-package force
+package errors
 
 import (
 	"fmt"
 	"strings"
 )
 
-// Custom Error to handle salesforce api responses.
+// ApiErrors to handle salesforce api responses.
 type ApiErrors []*ApiError
 
 type ApiError struct {
