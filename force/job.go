@@ -49,6 +49,13 @@ func JobWithJobInfo(info *JobInfo) OptionsFunc {
 	}
 }
 
+// JobWithForceApi adds a ForceApiClient to the Job
+func JobWithForceApi(api ForceApi) OptionsFunc {
+	return func(job *Job) {
+		job.forceApi = api
+	}
+}
+
 // JobWithApiVersion set the ApiVersion of a Job
 func JobWithApiVersion(apiVersion string) OptionsFunc {
 	return func(job *Job) {
