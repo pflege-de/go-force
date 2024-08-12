@@ -20,7 +20,7 @@ func TestCheckJobStatus(t *testing.T) {
 	job := CreateJob(
 		ops,
 		forceApi,
-		objMapper,
+		JobWithMapper(objMapper),
 	)
 
 	err := job.Start()
