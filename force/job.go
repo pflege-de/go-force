@@ -10,29 +10,21 @@ import (
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
-func CreateJob(opts ...OptionsFunc) *Job {
+func CreateJob(op JobOperation, fapi *ForceApi, objMapper ObjectMapper, opts ...OptionsFunc) *Job {
 	job := &Job{
-		info: &JobInfo{},
+		operation:    op,
+		forceApi:     fapi,
+		objectMapper: objMapper,
+		info:         &JobInfo{},
+		apiVersion:   DefaultAPIVersion,
+		client:       http.DefaultClient,
+		bytes:        []byte{},
 	}
 	for _, opt := range opts {
 		opt(job)
 	}
 
 	return job
-}
-
-// JobWithOperation adds a given JobOperation to the Job
-func JobWithOperation(op JobOperation) OptionsFunc {
-	return func(job *Job) {
-		job.operation = op
-	}
-}
-
-// JobWithMapper adds a given ObjectMapper to the Job
-func JobWithMapper(mapper ObjectMapper) OptionsFunc {
-	return func(job *Job) {
-		job.objectMapper = mapper
-	}
 }
 
 // JobWithHTTPClient adds a HTTPClient to the Job, to communicate with salesforce
@@ -46,13 +38,6 @@ func JobWithHTTPClient(client BulkClient) OptionsFunc {
 func JobWithJobInfo(info *JobInfo) OptionsFunc {
 	return func(job *Job) {
 		job.info = info
-	}
-}
-
-// JobWithForceApi adds a ForceApiClient to the Job
-func JobWithForceApi(api *ForceApi) OptionsFunc {
-	return func(job *Job) {
-		job.forceApi = api
 	}
 }
 

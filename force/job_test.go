@@ -2,7 +2,6 @@ package force
 
 import (
 	"github.com/pflege-de/go-force/sobjects"
-	"net/http"
 	"testing"
 )
 
@@ -19,20 +18,9 @@ func TestCheckJobStatus(t *testing.T) {
 		},
 	}
 	job := CreateJob(
-		JobWithHTTPClient(http.DefaultClient),
-		JobWithForceApi(forceApi),
-		JobWithApiVersion(DefaultAPIVersion),
-		JobWithOperation(ops),
-		JobWithMapper(func(objects any) [][]string {
-			objs := objects.([]*sobjects.Account)
-			records := make([][]string, len(objs))
-			for i, o := range objs {
-				records[i] = []string{
-					o.Id,
-				}
-			}
-			return records
-		}),
+		ops,
+		forceApi,
+		objMapper,
 	)
 
 	err := job.Start()
@@ -57,6 +45,17 @@ func TestCheckJobStatus(t *testing.T) {
 	deleteSObject(forceApi, t, accObj.Id)
 
 	t.Log("Job finished")
+}
+
+func objMapper(objects any) [][]string {
+	objs := objects.([]*sobjects.Account)
+	records := make([][]string, len(objs))
+	for i, o := range objs {
+		records[i] = []string{
+			o.Id,
+		}
+	}
+	return records
 }
 
 func insertSAccount(forceApi *ForceApi, t *testing.T) *sobjects.Account {
