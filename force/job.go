@@ -93,7 +93,12 @@ func (job *Job) Run(payload any) error {
 		return fmt.Errorf("cannot marshal csv. %w", err)
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s%s", job.forceApi.GetInstanceURL(), job.info.ContentURL), body)
+	contentUrl := job.info.ContentURL
+	if contentUrl[0:1] != `/` {
+		contentUrl = "/" + contentUrl
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s%s", job.forceApi.GetInstanceURL(), contentUrl), body)
 	if err != nil {
 		return fmt.Errorf("could not create new HTTP Request. %w", err)
 	}
