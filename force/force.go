@@ -11,17 +11,17 @@ import (
 )
 
 const (
-	testVersion       = "v58.0"
+	testVersion       = "v53.0"
 	testClientId      = "3MVG9A2kN3Bn17hs8MIaQx1voVGy662rXlC37svtmLmt6wO_iik8Hnk3DlcYjKRvzVNGWLFlGRH1ryHwS217h"
 	testClientSecret  = "4165772184959202901"
 	testUserName      = "go-force@jalali.net"
 	testPassword      = "golangrocks3"
-	testSecurityToken = "kAlicVmti9nWRKRiWG3Zvqtte"
+	testSecurityToken = "kAlicVmti9nWRKRiWG3Zvqtte" //nolint:gosec Just for testing purpose
 	testEnvironment   = "production"
 )
 
 const (
-	DefaultAPIVersion = "v58.0"
+	DefaultAPIVersion = "v53.0"
 )
 
 type APIConfig func(*ForceApi)
@@ -85,7 +85,7 @@ func NewClient(cfg ...APIConfig) (*ForceApi, error) {
 		apiResources:           make(map[string]string),
 		apiSObjects:            make(map[string]*SObjectMetaData),
 		apiSObjectDescriptions: make(map[string]*SObjectDescription),
-		apiVersion:             "v58.0",
+		apiVersion:             "v53.0",
 		httpClient:             http.DefaultClient,
 	}
 
