@@ -21,35 +21,36 @@ func CreateJob(opts ...OptionsFunc) *Job {
 	return job
 }
 
-// WithOperation adds a given JobOperation to the Job
-func (_ *Job) WithOperation(op JobOperation) OptionsFunc {
+// JobWithOperation adds a given JobOperation to the Job
+func JobWithOperation(op JobOperation) OptionsFunc {
 	return func(job *Job) {
 		job.operation = op
 	}
 }
 
-// WithMapper adds a given ObjectMapper to the Job
-func (_ *Job) WithMapper(mapper ObjectMapper) OptionsFunc {
+// JobWithMapper adds a given ObjectMapper to the Job
+func JobWithMapper(mapper ObjectMapper) OptionsFunc {
 	return func(job *Job) {
 		job.objectMapper = mapper
 	}
 }
 
-// WithHTTPClient adds a HTTPClient to the Job, to communicate with salesforce
-func (_ *Job) WithHTTPClient(client BulkClient) OptionsFunc {
+// JobWithHTTPClient adds a HTTPClient to the Job, to communicate with salesforce
+func JobWithHTTPClient(client BulkClient) OptionsFunc {
 	return func(job *Job) {
 		job.client = client
 	}
 }
 
-// WithJobInfo adds Job Information to the Job
-func (_ *Job) WithJobInfo(info *JobInfo) OptionsFunc {
+// JobWithJobInfo adds Job Information to the Job
+func JobWithJobInfo(info *JobInfo) OptionsFunc {
 	return func(job *Job) {
 		job.info = info
 	}
 }
 
-func (_ *Job) WithApiVersion(apiVersion string) OptionsFunc {
+// JobWithApiVersion set the ApiVersion of a Job
+func JobWithApiVersion(apiVersion string) OptionsFunc {
 	return func(job *Job) {
 		job.apiVersion = apiVersion
 	}
