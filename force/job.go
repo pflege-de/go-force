@@ -50,7 +50,7 @@ func JobWithJobInfo(info *JobInfo) OptionsFunc {
 }
 
 // JobWithForceApi adds a ForceApiClient to the Job
-func JobWithForceApi(api ForceApi) OptionsFunc {
+func JobWithForceApi(api *ForceApi) OptionsFunc {
 	return func(job *Job) {
 		job.forceApi = api
 	}
@@ -63,7 +63,7 @@ func JobWithApiVersion(apiVersion string) OptionsFunc {
 	}
 }
 
-func (job *Job) GetForceApi() ForceApi      { return job.forceApi }
+func (job *Job) GetForceApi() *ForceApi     { return job.forceApi }
 func (job *Job) GetOperation() JobOperation { return job.operation }
 func (job *Job) GetMapper() ObjectMapper    { return job.objectMapper }
 func (job *Job) GetHTTPClient() BulkClient  { return job.client }

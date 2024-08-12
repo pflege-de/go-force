@@ -15,7 +15,7 @@ type ObjectMapper func(objects any) [][]string
 type Job struct {
 	info         *JobInfo
 	operation    JobOperation
-	forceApi     ForceApi
+	forceApi     *ForceApi
 	objectMapper ObjectMapper
 	client       BulkClient
 	bytes        []byte
