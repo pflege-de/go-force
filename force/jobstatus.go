@@ -8,7 +8,7 @@ import (
 
 var isCsvError = regexp.MustCompile(`[ -~].*CSV[ -~].*`).MatchString
 
-func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration, bytesCount int) (JobOperation, error) {
+func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (JobOperation, error) {
 	tt := time.NewTicker(tickerSeconds * time.Second)
 	defer tt.Stop()
 
@@ -37,7 +37,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 						return op, err
 					}
 
-					op.ProgressReporter(statePrefix, 0)
+					op.ProgressReporter(statePrefix)
 
 					if jobFailed.ErrorName == "InvalidBatch" && isCsvError(jobFailed.ErrorDescription) {
 						return op, jobFailed
@@ -45,10 +45,10 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 
 					break STATUS
 				case "Aborted", "JobComplete":
-					op.ProgressReporter(statePrefix, 0)
+					op.ProgressReporter(statePrefix)
 					break STATUS
 				default:
-					executeProgReporter(op.ProgressReporter, status.State, statePrefix, bytesCount)
+					executeProgReporter(op.ProgressReporter, status.State, statePrefix)
 				}
 			}
 		}
@@ -60,8 +60,8 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 	return op, nil
 }
 
-func executeProgReporter(pr func(msg string, bytesTransferred int), state, statePrefix string, bytesCount int) {
-	pr(fmt.Sprintf(getTextByState(state), statePrefix), bytesCount)
+func executeProgReporter(pr func(msg string), state, statePrefix string) {
+	pr(fmt.Sprintf(getTextByState(state), statePrefix))
 }
 
 func getTextByState(state string) string {

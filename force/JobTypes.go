@@ -18,7 +18,6 @@ type Job struct {
 	forceApi     *ForceApi
 	objectMapper ObjectMapper
 	client       BulkClient
-	bytes        []byte
 	apiVersion   string
 }
 

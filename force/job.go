@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
@@ -18,7 +19,6 @@ func CreateJob(op JobOperation, fapi *ForceApi, opts ...OptionsFunc) *Job {
 		info:         &JobInfo{},
 		apiVersion:   DefaultAPIVersion,
 		client:       http.DefaultClient,
-		bytes:        []byte{},
 	}
 	for _, opt := range opts {
 		opt(job)
@@ -55,11 +55,6 @@ func JobWithMapper(mapper ObjectMapper) OptionsFunc {
 	}
 }
 
-func (job *Job) GetForceApi() *ForceApi     { return job.forceApi }
-func (job *Job) GetOperation() JobOperation { return job.operation }
-func (job *Job) GetMapper() ObjectMapper    { return job.objectMapper }
-func (job *Job) GetHTTPClient() BulkClient  { return job.client }
-
 func (job *Job) Start() error {
 	params := map[string]string{
 		"object":    job.operation.Object,
@@ -69,7 +64,7 @@ func (job *Job) Start() error {
 	if err := job.forceApi.Post("/services/data/"+job.apiVersion+"/jobs/ingest", nil, params, job.info); err != nil {
 		return err
 	}
-	job.operation.ProgressReporter("job created", -1)
+	job.operation.ProgressReporter("job created")
 	return nil
 }
 
@@ -86,7 +81,7 @@ func (job *Job) Run(payload any) error {
 	}
 
 	contentUrl := job.info.ContentURL
-	if contentUrl[0:1] != `/` {
+	if !strings.HasPrefix(contentUrl, "/") {
 		contentUrl = "/" + contentUrl
 	}
 
@@ -113,7 +108,7 @@ func (job *Job) Run(payload any) error {
 		return fmt.Errorf("unexpected StatusCode on PUT batch: %d (%s), %s", res.StatusCode, res.Status, string(errb))
 	}
 
-	statusURI := fmt.Sprintf("/services/data/"+job.apiVersion+"/jobs/ingest/%s", job.info.Id)
+	statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", job.apiVersion, job.info.Id)
 	params := map[string]string{
 		"state": "UploadComplete",
 	}
@@ -127,11 +122,6 @@ func (job *Job) Run(payload any) error {
 	return nil
 }
 
-func (job *Job) GetByteCount() int {
-	cr := bytes.NewReader(job.bytes)
-	return int(cr.Size())
-}
-
 func (job *Job) marshalCSV(payload any) (io.Reader, error) {
 	// Map Objects to a csv Reader, for bulk api
 	var bulkData bytes.Buffer
@@ -142,6 +132,5 @@ func (job *Job) marshalCSV(payload any) (io.Reader, error) {
 	if err := w.WriteAll(records); err != nil {
 		return nil, fmt.Errorf("could not create csv from records. %w", err)
 	}
-	job.bytes = bulkData.Bytes()
 	return bytes.NewReader(bulkData.Bytes()), nil
 }

@@ -12,7 +12,7 @@ type JobOperation struct {
 	ResponseMessages       []string
 	JobIDs                 []string
 	WriteLine              func(w io.Writer) bool
-	ProgressReporter       func(msg string, bytesTransferred int)
+	ProgressReporter       func(msg string)
 }
 
 func (op *JobOperation) AddJobID(id string) {

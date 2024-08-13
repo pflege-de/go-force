@@ -13,8 +13,8 @@ func TestCheckJobStatus(t *testing.T) {
 		Operation: "update",
 		Object:    accObj.ApiName(),
 		Fields:    []string{"Id"},
-		ProgressReporter: func(msg string, bytesTransferred int) {
-			t.Logf("BulkOps Update: Account\nstate: %s\nsent bytes: %d", msg, bytesTransferred)
+		ProgressReporter: func(msg string) {
+			t.Logf("BulkOps Update: Account\nstate: %s", msg)
 		},
 	}
 	job := CreateJob(
@@ -35,7 +35,7 @@ func TestCheckJobStatus(t *testing.T) {
 		t.Fatalf("Could not run the job: %v ", err)
 	}
 
-	_, err = forceApi.CheckJobStatus(ops, 3, 0)
+	_, err = forceApi.CheckJobStatus(ops, 3)
 
 	if err != nil {
 		deleteSObject(forceApi, t, accObj.Id)
