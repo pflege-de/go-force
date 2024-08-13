@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	version      = "1.0.0"
+	version      = "1.1.0"
 	userAgent    = "go-force/" + version
 	contentType  = "application/json"
 	responseType = "application/json"
 )
 
 // Get issues a GET to the specified path with the given params and put the
-// umarshalled (json) result in the third parameter
+// unmarshalled (json) result in the third parameter
 func (forceApi *ForceApi) Get(path string, params url.Values, out interface{}) error {
 	return forceApi.request("GET", path, params, nil, out)
 }
@@ -59,7 +59,7 @@ func (forceApi *ForceApi) NewRequest(method, path string, params url.Values) (*h
 	// Build Request
 	req, err := http.NewRequest(method, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating %v request: %v", method, err)
+		return nil, fmt.Errorf("error creating %v request: %w", method, err)
 	}
 
 	// Add Headers
@@ -73,7 +73,7 @@ func (forceApi *ForceApi) NewRequest(method, path string, params url.Values) (*h
 
 func (forceApi *ForceApi) request(method, path string, params url.Values, payload, out interface{}) error {
 	if err := forceApi.oauth.Validate(); err != nil {
-		return fmt.Errorf("Error creating %v request: %v", method, err)
+		return fmt.Errorf("error creating %v request: %w", method, err)
 	}
 
 	req, err := forceApi.NewRequest(method, path, params)
@@ -87,7 +87,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 
 		jsonBytes, err := forcejson.Marshal(payload)
 		if err != nil {
-			return fmt.Errorf("Error marshaling encoded payload: %v", err)
+			return fmt.Errorf("error marshaling encoded payload: %w", err)
 		}
 
 		body = io.NopCloser(bytes.NewReader(jsonBytes))
@@ -98,7 +98,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	forceApi.traceRequest(req)
 	resp, err := forceApi.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("Error sending %v request: %v", method, err)
+		return fmt.Errorf("error sending %v request: %w", method, err)
 	}
 	defer resp.Body.Close()
 	forceApi.traceResponse(resp)
@@ -110,7 +110,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("Error reading response bytes: %v", err)
+		return fmt.Errorf("error reading response bytes: %w", err)
 	}
 	forceApi.traceResponseBody(respBytes)
 
@@ -144,7 +144,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 
 	if objectUnmarshalErr != nil {
 		// Not a force.com api error. Just an unmarshalling error.
-		return fmt.Errorf("unable to unmarshal response to object: %v", objectUnmarshalErr)
+		return fmt.Errorf("unable to unmarshal response to object: %w", objectUnmarshalErr)
 	}
 
 	// Sometimes no response is expected. For example delete and update. We still have to make sure an error wasn't returned.

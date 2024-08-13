@@ -72,7 +72,7 @@ func (oauth *forceOauth) Authenticate() error {
 	// Build Request
 	req, err := http.NewRequest("POST", uri, body)
 	if err != nil {
-		return fmt.Errorf("Error creating authentication request: %v", err)
+		return fmt.Errorf("error creating authentication request: %w", err)
 	}
 
 	// Add Headers
@@ -82,13 +82,13 @@ func (oauth *forceOauth) Authenticate() error {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("Error sending authentication request: %v", err)
+		return fmt.Errorf("error sending authentication request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("Error reading authentication response bytes: %v", err)
+		return fmt.Errorf("error reading authentication response bytes: %w", err)
 	}
 
 	// Attempt to parse response as a force.com api error
@@ -101,7 +101,7 @@ func (oauth *forceOauth) Authenticate() error {
 	}
 
 	if err := json.Unmarshal(respBytes, oauth); err != nil {
-		return fmt.Errorf("unable to unmarshal authentication response: %v", err)
+		return fmt.Errorf("unable to unmarshal authentication response: %w", err)
 	}
 
 	return nil

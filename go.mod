@@ -1,3 +1,3 @@
 module github.com/pflege-de/go-force
 
-go 1.16
+go 1.22.5

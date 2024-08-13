@@ -1,11 +1,9 @@
 package force
 
 import (
+	"github.com/pflege-de/go-force/sobjects"
 	"math/rand"
 	"testing"
-	"time"
-
-	"github.com/pflege-de/go-force/sobjects"
 )
 
 const (
@@ -82,7 +80,6 @@ func TestGetSObject(t *testing.T) {
 func TestUpdateSObject(t *testing.T) {
 	forceApi := createTest()
 	// Need some random text for updating a field.
-	rand.Seed(time.Now().UTC().UnixNano())
 	someText := randomString(10)
 
 	// Test Standard Object
@@ -115,7 +112,6 @@ func TestInsertDeleteSObject(t *testing.T) {
 
 func insertSObject(forceApi *ForceApi, t *testing.T) string {
 	// Need some random text for name field.
-	rand.Seed(time.Now().UTC().UnixNano())
 	someText := randomString(10)
 
 	// Test Standard Object

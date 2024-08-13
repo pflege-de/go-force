@@ -26,7 +26,7 @@ type ForceApi struct {
 	apiSObjects            map[string]*SObjectMetaData
 	apiSObjectDescriptions map[string]*SObjectDescription
 	apiMaxBatchSize        int64
-	logger                 ForceApiLogger
+	logger                 ApiLogger
 	logPrefix              string
 
 	httpClient *http.Client

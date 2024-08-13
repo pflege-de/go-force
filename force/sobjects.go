@@ -7,25 +7,25 @@ import (
 	"strings"
 )
 
-// Interface all standard and custom objects must implement. Needed for uri generation.
+// SObject Interface all standard and custom objects must implement. Needed for uri generation.
 type SObject interface {
 	ApiName() string
 	ExternalIdApiName() string
 }
 
-// Response received from force.com API after insert of an sobject.
+// SObjectResponse received from force.com API after insert of an sobject.
 type SObjectResponse struct {
 	Id      string    `force:"id,omitempty"`
 	Errors  ApiErrors `force:"error,omitempty"` //TODO: Not sure if ApiErrors is the right object
 	Success bool      `force:"success,omitempty"`
 }
 
-func (forceAPI *ForceApi) DescribeSObjects() (map[string]*SObjectMetaData, error) {
-	if err := forceAPI.getApiSObjects(); err != nil {
+func (forceApi *ForceApi) DescribeSObjects() (map[string]*SObjectMetaData, error) {
+	if err := forceApi.getApiSObjects(); err != nil {
 		return nil, err
 	}
 
-	return forceAPI.apiSObjects, nil
+	return forceApi.apiSObjects, nil
 }
 
 func (forceApi *ForceApi) DescribeSObject(in SObject) (resp *SObjectDescription, err error) {

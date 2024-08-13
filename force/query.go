@@ -19,7 +19,7 @@ func BuildQuery(fields, table string, constraints []string) string {
 	return query
 }
 
-// Use the Query resource to execute a SOQL query that returns all the results in a single response,
+// Query resource to execute a SOQL query that returns all the results in a single response,
 // or if needed, returns part of the results and an identifier used to retrieve the remaining results.
 func (forceApi *ForceApi) Query(query string, out interface{}) (err error) {
 	uri := forceApi.apiResources[queryKey]
@@ -33,7 +33,7 @@ func (forceApi *ForceApi) Query(query string, out interface{}) (err error) {
 	return
 }
 
-// Use the QueryAll resource to execute a SOQL query that includes information about records that have
+// QueryAll resource to execute a SOQL query that includes information about records that have
 // been deleted because of a merge or delete. Use QueryAll rather than Query, because the Query resource
 // will automatically filter out items that have been deleted.
 func (forceApi *ForceApi) QueryAll(query string, out interface{}) (err error) {
