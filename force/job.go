@@ -11,10 +11,10 @@ import (
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
-func CreateJob(op JobOperation, fapi *ForceApi, opts ...OptionsFunc) *Job {
+func CreateJob(fapi *ForceApi, opts ...OptionsFunc) *Job {
 	job := &Job{
-		operation:    op,
 		forceApi:     fapi,
+		operation:    JobOperation{},
 		objectMapper: func(objects any) [][]string { return nil },
 		info:         &JobInfo{},
 		apiVersion:   DefaultAPIVersion,
@@ -52,6 +52,13 @@ func JobWithApiVersion(apiVersion string) OptionsFunc {
 func JobWithMapper(mapper ObjectMapper) OptionsFunc {
 	return func(job *Job) {
 		job.objectMapper = mapper
+	}
+}
+
+// JobWithOperation adds a given JobOperation to the Job
+func JobWithOperation(operation JobOperation) OptionsFunc {
+	return func(job *Job) {
+		job.operation = operation
 	}
 }
 
