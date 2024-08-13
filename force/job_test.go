@@ -18,8 +18,8 @@ func TestCheckJobStatus(t *testing.T) {
 		},
 	}
 	job := CreateJob(
-		ops,
 		forceApi,
+		JobWithOperation(ops),
 		JobWithMapper(objMapper),
 	)
 
