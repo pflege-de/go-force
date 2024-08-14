@@ -11,7 +11,7 @@ import (
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
-func CreateJob(fapi *ForceApi, opts ...OptionsFunc) *Job {
+func CreateJob(fapi ForceApiInterface, opts ...OptionsFunc) *Job {
 	job := &Job{
 		forceApi:     fapi,
 		operation:    JobOperation{},
@@ -140,4 +140,20 @@ func (job *Job) marshalCSV(payload any) (io.Reader, error) {
 		return nil, fmt.Errorf("could not create csv from records. %w", err)
 	}
 	return bytes.NewReader(bulkData.Bytes()), nil
+}
+
+func (job *Job) GetForceApi() ForceApiInterface {
+	return job.forceApi
+}
+
+func (job *Job) GetHTTPClient() BulkClient {
+	return job.client
+}
+
+func (job *Job) GetMapper() ObjectMapper {
+	return job.objectMapper
+}
+
+func (job *Job) GetOperation() JobOperation {
+	return job.operation
 }

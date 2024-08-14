@@ -21,7 +21,7 @@ const (
 
 type ForceApi struct {
 	apiVersion             string
-	oauth                  *forceOauth
+	oauth                  *ForceOauth
 	apiResources           map[string]string
 	apiSObjects            map[string]*SObjectMetaData
 	apiSObjectDescriptions map[string]*SObjectDescription

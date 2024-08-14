@@ -105,12 +105,12 @@ func TestUpdateSObject(t *testing.T) {
 }
 
 func TestInsertDeleteSObject(t *testing.T) {
-	forceApi := createTest()
-	objectId := insertSObject(forceApi, t)
-	deleteSObject(forceApi, t, objectId)
+	fapi := createTest()
+	objectId := insertSObject(fapi, t)
+	deleteSObject(fapi, t, objectId)
 }
 
-func insertSObject(forceApi *ForceApi, t *testing.T) string {
+func insertSObject(forceApi ForceApiSObjectInterface, t *testing.T) string {
 	// Need some random text for name field.
 	someText := randomString(10)
 
@@ -130,17 +130,17 @@ func insertSObject(forceApi *ForceApi, t *testing.T) string {
 	return resp.Id
 }
 
-func deleteSObject(forceApi *ForceApi, t *testing.T, id string) {
+func deleteSObject(fapi ForceApiSObjectInterface, t *testing.T, id string) {
 	// Test Standard Object
 	acc := &sobjects.Account{}
 
-	err := forceApi.DeleteSObject(id, acc)
+	err := fapi.DeleteSObject(id, acc)
 	if err != nil {
 		t.Fatalf("Delete SObject Account failed: %v", err)
 	}
 
 	// Read back and verify
-	err = forceApi.GetSObject(id, nil, acc)
+	err = fapi.GetSObject(id, nil, acc)
 	if err == nil {
 		t.Fatalf("Delete SObject Account failed, was able to retrieve deleted object: %+v", acc)
 	}

@@ -6,8 +6,8 @@ import (
 )
 
 func TestCheckJobStatus(t *testing.T) {
-	forceApi := createTest()
-	accObj := insertSAccount(forceApi, t)
+	fapi := createTest()
+	accObj := insertSAccount(fapi, t)
 
 	ops := JobOperation{
 		Operation: "update",
@@ -18,7 +18,7 @@ func TestCheckJobStatus(t *testing.T) {
 		},
 	}
 	job := CreateJob(
-		forceApi,
+		fapi,
 		JobWithOperation(ops),
 		JobWithMapper(objMapper),
 	)
@@ -35,14 +35,14 @@ func TestCheckJobStatus(t *testing.T) {
 		t.Fatalf("Could not run the job: %v ", err)
 	}
 
-	_, err = forceApi.CheckJobStatus(ops, 3)
+	_, err = fapi.CheckJobStatus(ops, 3)
 
 	if err != nil {
-		deleteSObject(forceApi, t, accObj.Id)
+		deleteSObject(fapi, t, accObj.Id)
 		t.Fatalf("Could not check job status: %v", err)
 	}
 
-	deleteSObject(forceApi, t, accObj.Id)
+	deleteSObject(fapi, t, accObj.Id)
 
 	t.Log("Job finished")
 }
@@ -58,7 +58,7 @@ func objMapper(objects any) [][]string {
 	return records
 }
 
-func insertSAccount(forceApi *ForceApi, t *testing.T) *sobjects.Account {
+func insertSAccount(forceApi ForceApiSObjectInterface, t *testing.T) *sobjects.Account {
 	// Need some random text for name field.
 	someText := randomString(10)
 
