@@ -141,3 +141,19 @@ func (job *Job) marshalCSV(payload any) (io.Reader, error) {
 	}
 	return bytes.NewReader(bulkData.Bytes()), nil
 }
+
+func (job *Job) GetForceApi() ForceApiInterface {
+	return job.forceApi
+}
+
+func (job *Job) GetHTTPClient() BulkClient {
+	return job.client
+}
+
+func (job *Job) GetMapper() ObjectMapper {
+	return job.objectMapper
+}
+
+func (job *Job) GetOperation() JobOperation {
+	return job.operation
+}
