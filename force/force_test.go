@@ -9,7 +9,7 @@ import (
 
 func TestCreateWithAccessToken(t *testing.T) {
 	// Manually grab an OAuth token, so that we can pass it into CreateWithAccessToken
-	oauth := &forceOauth{
+	oauth := &ForceOauth{
 		clientId:      testClientId,
 		clientSecret:  testClientSecret,
 		userName:      testUserName,
@@ -39,7 +39,7 @@ func TestCreateWithAccessToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create new force api instance using pre-defined oauth details: %#v", err)
 	}
-	if err := newForceApi.oauth.Validate(); err != nil {
+	if err := newForceApi.GetOauth().Validate(); err != nil {
 		t.Fatalf("Oauth object is invlaid: %#v", err)
 	}
 

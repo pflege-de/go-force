@@ -17,7 +17,7 @@ const (
 	invalidSessionErrorCode = "INVALID_SESSION_ID"
 )
 
-type forceOauth struct {
+type ForceOauth struct {
 	AccessToken string `json:"access_token"`
 	InstanceUrl string `json:"instance_url"`
 	Id          string `json:"id"`
@@ -33,7 +33,7 @@ type forceOauth struct {
 	environment   string
 }
 
-func (oauth *forceOauth) Validate() error {
+func (oauth *ForceOauth) Validate() error {
 	if oauth == nil || len(oauth.InstanceUrl) == 0 || len(oauth.AccessToken) == 0 {
 		return fmt.Errorf("invalid Force Oauth Object: %#v", oauth)
 	}
@@ -41,7 +41,7 @@ func (oauth *forceOauth) Validate() error {
 	return nil
 }
 
-func (oauth *forceOauth) Expired(apiErrors ApiErrors) bool {
+func (oauth *ForceOauth) Expired(apiErrors ApiErrors) bool {
 	for _, err := range apiErrors {
 		if err.ErrorCode == invalidSessionErrorCode {
 			return true
@@ -51,7 +51,7 @@ func (oauth *forceOauth) Expired(apiErrors ApiErrors) bool {
 	return false
 }
 
-func (oauth *forceOauth) Authenticate() error {
+func (oauth *ForceOauth) Authenticate() error {
 	payload := url.Values{
 		"grant_type":    {grantType},
 		"client_id":     {oauth.clientId},

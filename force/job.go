@@ -11,7 +11,7 @@ import (
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
-func CreateJob(fapi *ForceApi, opts ...OptionsFunc) *Job {
+func CreateJob(fapi ForceApiInterface, opts ...OptionsFunc) *Job {
 	job := &Job{
 		forceApi:     fapi,
 		operation:    JobOperation{},
