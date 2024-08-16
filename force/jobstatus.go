@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-var isCsvError = regexp.MustCompile(`[ -~].*CSV[ -~].*`).MatchString
+// errRegexp prüft, ob in einem (Error-)String CSV enthalten ist ([ -~] matched alle Zeichen vom Space bis zur Tilde)
+var errRegexp = regexp.MustCompile(`[ -~].*CSV[ -~].*`)
 
 func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (JobOperation, error) {
 	tt := time.NewTicker(tickerSeconds * time.Second)
@@ -39,7 +40,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 
 					op.ProgressReporter(statePrefix)
 
-					if jobFailed.ErrorName == "InvalidBatch" && isCsvError(jobFailed.ErrorDescription) {
+					if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
 						return op, jobFailed
 					}
 

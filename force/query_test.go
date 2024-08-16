@@ -18,13 +18,13 @@ type AccountQueryResponse struct {
 
 func TestQuery(t *testing.T) {
 	forceApi := createTest()
-	desc, err := forceApi.DescribeSObject(&sobjects.Account{})
+	desc, err := (*forceApi).DescribeSObject(&sobjects.Account{})
 	if err != nil {
 		t.Fatalf("Failed to retrieve description of sobject: %v", err)
 	}
 
 	list := &AccountQueryResponse{}
-	err = forceApi.Query(BuildQuery(desc.AllFields, desc.Name, nil), list)
+	err = (*forceApi).Query(BuildQuery(desc.AllFields, desc.Name, nil), list)
 	if err != nil {
 		t.Fatalf("Failed to query: %v", err)
 	}
@@ -39,13 +39,13 @@ func TestQueryAll(t *testing.T) {
 	deleteSObject(forceApi, t, newId)
 
 	// Then look for it.
-	desc, err := forceApi.DescribeSObject(&sobjects.Account{})
+	desc, err := (*forceApi).DescribeSObject(&sobjects.Account{})
 	if err != nil {
 		t.Fatalf("Failed to retrieve description of sobject: %v", err)
 	}
 
 	list := &AccountQueryResponse{}
-	err = forceApi.QueryAll(fmt.Sprintf(queryAll, desc.AllFields, newId), list)
+	err = (*forceApi).QueryAll(fmt.Sprintf(queryAll, desc.AllFields, newId), list)
 	if err != nil {
 		t.Fatalf("Failed to queryAll: %v", err)
 	}

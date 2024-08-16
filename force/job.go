@@ -11,7 +11,7 @@ import (
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
-func CreateJob(fapi ForceApiInterface, opts ...OptionsFunc) *Job {
+func CreateJob(fapi *ForceApiInterface, opts ...OptionsFunc) *Job {
 	job := &Job{
 		forceApi:     fapi,
 		operation:    JobOperation{},
@@ -68,16 +68,16 @@ func (job *Job) Start() error {
 		"operation": job.operation.Operation,
 	}
 
-	if err := job.forceApi.Post("/services/data/"+job.apiVersion+"/jobs/ingest", nil, params, job.info); err != nil {
+	if err := (*job.forceApi).Post("/services/data/"+job.apiVersion+"/jobs/ingest", nil, params, job.info); err != nil {
 		return err
 	}
 	job.operation.ProgressReporter("job created")
 	return nil
 }
 
-// Run marshals the given payload to csv with the given ObjectMapper
-// for the Job and sends the csv to the given SalesforceJob
+// Run marshals the given payload to csv with the given ObjectMapper for the Job and sends the csv to the given SalesforceJob
 func (job *Job) Run(payload any) error {
+
 	if payload == nil {
 		return errors.New("could not send payload because it is empty")
 	}
@@ -87,18 +87,20 @@ func (job *Job) Run(payload any) error {
 		return fmt.Errorf("cannot marshal csv. %w", err)
 	}
 
+	urlFormat := "%s%s"
+	instanceUrl := (*job.forceApi).GetInstanceURL()
 	contentUrl := job.info.ContentURL
-	if !strings.HasPrefix(contentUrl, "/") {
-		contentUrl = "/" + contentUrl
+	if !strings.HasPrefix(contentUrl, "/") && !strings.HasSuffix(instanceUrl, "/") {
+		urlFormat = "%s/%s"
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s%s", job.forceApi.GetInstanceURL(), contentUrl), body)
+	req, err := http.NewRequest("PUT", fmt.Sprintf(urlFormat, instanceUrl, contentUrl), body)
 	if err != nil {
 		return fmt.Errorf("could not create new HTTP Request. %w", err)
 	}
 
 	req.Header.Set("Content-Type", "text/csv")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", job.forceApi.GetAccessToken()))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", (*job.forceApi).GetAccessToken()))
 
 	res, err := job.client.Do(req)
 	if err != nil {
@@ -115,12 +117,12 @@ func (job *Job) Run(payload any) error {
 		return fmt.Errorf("unexpected StatusCode on PUT batch: %d (%s), %s", res.StatusCode, res.Status, string(errb))
 	}
 
-	statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", job.apiVersion, job.info.Id)
+	statusURI := fmt.Sprintf("/services/data/"+job.apiVersion+"/jobs/ingest/%s", job.info.Id)
 	params := map[string]string{
 		"state": "UploadComplete",
 	}
 
-	if err := job.forceApi.Patch(statusURI, nil, params, job.info); err != nil {
+	if err := (*job.forceApi).Patch(statusURI, nil, params, job.info); err != nil {
 		return err
 	}
 
@@ -142,7 +144,7 @@ func (job *Job) marshalCSV(payload any) (io.Reader, error) {
 	return bytes.NewReader(bulkData.Bytes()), nil
 }
 
-func (job *Job) GetForceApi() ForceApiInterface {
+func (job *Job) GetForceApi() *ForceApiInterface {
 	return job.forceApi
 }
 
