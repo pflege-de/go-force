@@ -61,7 +61,7 @@ type ForceApiInterface interface {
 
 	GetLimits() (limits Limits, err error)
 
-	CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (JobOperation, error)
+	CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (*JobOperation, error)
 }
 
 // ForceApiResponse represents a response from salesforce to a fapi.Query() or fapi.Get() request.

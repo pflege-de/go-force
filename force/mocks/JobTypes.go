@@ -81,10 +81,10 @@ func (m *MockForceApiInterface) EXPECT() *MockForceApiInterfaceMockRecorder {
 }
 
 // CheckJobStatus mocks base method.
-func (m *MockForceApiInterface) CheckJobStatus(op force.JobOperation, tickerSeconds time.Duration) (force.JobOperation, error) {
+func (m *MockForceApiInterface) CheckJobStatus(op force.JobOperation, tickerSeconds time.Duration) (*force.JobOperation, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckJobStatus", op, tickerSeconds)
-	ret0, _ := ret[0].(force.JobOperation)
+	ret0, _ := ret[0].(*force.JobOperation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
