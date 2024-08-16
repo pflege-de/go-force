@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
@@ -86,7 +87,14 @@ func (job *Job) Run(payload any) error {
 		return fmt.Errorf("cannot marshal csv. %w", err)
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s%s", (*job.forceApi).GetInstanceURL(), job.info.ContentURL), body)
+	urlFormat := "%s%s"
+	instanceUrl := (*job.forceApi).GetInstanceURL()
+	contentUrl := job.info.ContentURL
+	if !strings.HasPrefix(contentUrl, "/") && !strings.HasSuffix(instanceUrl, "/") {
+		urlFormat = "%s/%s"
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf(urlFormat, instanceUrl, contentUrl), body)
 	if err != nil {
 		return fmt.Errorf("could not create new HTTP Request. %w", err)
 	}
