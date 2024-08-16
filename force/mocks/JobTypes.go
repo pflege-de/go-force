@@ -95,6 +95,64 @@ func (mr *MockForceApiInterfaceMockRecorder) CheckJobStatus(op, tickerSeconds an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckJobStatus", reflect.TypeOf((*MockForceApiInterface)(nil).CheckJobStatus), op, tickerSeconds)
 }
 
+// Delete mocks base method.
+func (m *MockForceApiInterface) Delete(path string, params url.Values) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", path, params)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockForceApiInterfaceMockRecorder) Delete(path, params any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockForceApiInterface)(nil).Delete), path, params)
+}
+
+// DeleteSObject mocks base method.
+func (m *MockForceApiInterface) DeleteSObject(id string, in force.SObject) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSObject", id, in)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSObject indicates an expected call of DeleteSObject.
+func (mr *MockForceApiInterfaceMockRecorder) DeleteSObject(id, in any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSObject", reflect.TypeOf((*MockForceApiInterface)(nil).DeleteSObject), id, in)
+}
+
+// DescribeSObject mocks base method.
+func (m *MockForceApiInterface) DescribeSObject(in force.SObject) (*force.SObjectDescription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeSObject", in)
+	ret0, _ := ret[0].(*force.SObjectDescription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeSObject indicates an expected call of DescribeSObject.
+func (mr *MockForceApiInterfaceMockRecorder) DescribeSObject(in any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSObject", reflect.TypeOf((*MockForceApiInterface)(nil).DescribeSObject), in)
+}
+
+// DescribeSObjects mocks base method.
+func (m *MockForceApiInterface) DescribeSObjects() (map[string]*force.SObjectMetaData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DescribeSObjects")
+	ret0, _ := ret[0].(map[string]*force.SObjectMetaData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeSObjects indicates an expected call of DescribeSObjects.
+func (mr *MockForceApiInterfaceMockRecorder) DescribeSObjects() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSObjects", reflect.TypeOf((*MockForceApiInterface)(nil).DescribeSObjects))
+}
+
 // Get mocks base method.
 func (m *MockForceApiInterface) Get(path string, params url.Values, out any) error {
 	m.ctrl.T.Helper()
@@ -166,6 +224,50 @@ func (mr *MockForceApiInterfaceMockRecorder) GetOauth() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOauth", reflect.TypeOf((*MockForceApiInterface)(nil).GetOauth))
 }
 
+// GetSObject mocks base method.
+func (m *MockForceApiInterface) GetSObject(id string, fields []string, out force.SObject) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSObject", id, fields, out)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetSObject indicates an expected call of GetSObject.
+func (mr *MockForceApiInterfaceMockRecorder) GetSObject(id, fields, out any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSObject", reflect.TypeOf((*MockForceApiInterface)(nil).GetSObject), id, fields, out)
+}
+
+// InsertSObject mocks base method.
+func (m *MockForceApiInterface) InsertSObject(in force.SObject) (*force.SObjectResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertSObject", in)
+	ret0, _ := ret[0].(*force.SObjectResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertSObject indicates an expected call of InsertSObject.
+func (mr *MockForceApiInterfaceMockRecorder) InsertSObject(in any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertSObject", reflect.TypeOf((*MockForceApiInterface)(nil).InsertSObject), in)
+}
+
+// NewRequest mocks base method.
+func (m *MockForceApiInterface) NewRequest(method, path string, params url.Values) (*http.Request, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewRequest", method, path, params)
+	ret0, _ := ret[0].(*http.Request)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NewRequest indicates an expected call of NewRequest.
+func (mr *MockForceApiInterfaceMockRecorder) NewRequest(method, path, params any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewRequest", reflect.TypeOf((*MockForceApiInterface)(nil).NewRequest), method, path, params)
+}
+
 // Patch mocks base method.
 func (m *MockForceApiInterface) Patch(path string, params url.Values, payload, out any) error {
 	m.ctrl.T.Helper()
@@ -192,6 +294,20 @@ func (m *MockForceApiInterface) Post(path string, params url.Values, payload, ou
 func (mr *MockForceApiInterfaceMockRecorder) Post(path, params, payload, out any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockForceApiInterface)(nil).Post), path, params, payload, out)
+}
+
+// Put mocks base method.
+func (m *MockForceApiInterface) Put(path string, params url.Values, payload, out any) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Put", path, params, payload, out)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Put indicates an expected call of Put.
+func (mr *MockForceApiInterfaceMockRecorder) Put(path, params, payload, out any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockForceApiInterface)(nil).Put), path, params, payload, out)
 }
 
 // Query mocks base method.
@@ -222,246 +338,60 @@ func (mr *MockForceApiInterfaceMockRecorder) QueryAll(query, out any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryAll", reflect.TypeOf((*MockForceApiInterface)(nil).QueryAll), query, out)
 }
 
-// MockForceApiSObjectInterface is a mock of ForceApiSObjectInterface interface.
-type MockForceApiSObjectInterface struct {
-	ctrl     *gomock.Controller
-	recorder *MockForceApiSObjectInterfaceMockRecorder
-}
-
-// MockForceApiSObjectInterfaceMockRecorder is the mock recorder for MockForceApiSObjectInterface.
-type MockForceApiSObjectInterfaceMockRecorder struct {
-	mock *MockForceApiSObjectInterface
-}
-
-// NewMockForceApiSObjectInterface creates a new mock instance.
-func NewMockForceApiSObjectInterface(ctrl *gomock.Controller) *MockForceApiSObjectInterface {
-	mock := &MockForceApiSObjectInterface{ctrl: ctrl}
-	mock.recorder = &MockForceApiSObjectInterfaceMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockForceApiSObjectInterface) EXPECT() *MockForceApiSObjectInterfaceMockRecorder {
-	return m.recorder
-}
-
-// CheckJobStatus mocks base method.
-func (m *MockForceApiSObjectInterface) CheckJobStatus(op force.JobOperation, tickerSeconds time.Duration) (force.JobOperation, error) {
+// QueryNext mocks base method.
+func (m *MockForceApiInterface) QueryNext(uri string, out any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckJobStatus", op, tickerSeconds)
-	ret0, _ := ret[0].(force.JobOperation)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckJobStatus indicates an expected call of CheckJobStatus.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) CheckJobStatus(op, tickerSeconds any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckJobStatus", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).CheckJobStatus), op, tickerSeconds)
-}
-
-// DeleteSObject mocks base method.
-func (m *MockForceApiSObjectInterface) DeleteSObject(id string, in force.SObject) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteSObject", id, in)
+	ret := m.ctrl.Call(m, "QueryNext", uri, out)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteSObject indicates an expected call of DeleteSObject.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) DeleteSObject(id, in any) *gomock.Call {
+// QueryNext indicates an expected call of QueryNext.
+func (mr *MockForceApiInterfaceMockRecorder) QueryNext(uri, out any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSObject", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).DeleteSObject), id, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryNext", reflect.TypeOf((*MockForceApiInterface)(nil).QueryNext), uri, out)
 }
 
-// DescribeSObject mocks base method.
-func (m *MockForceApiSObjectInterface) DescribeSObject(in force.SObject) (*force.SObjectDescription, error) {
+// RefreshToken mocks base method.
+func (m *MockForceApiInterface) RefreshToken() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeSObject", in)
-	ret0, _ := ret[0].(*force.SObjectDescription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DescribeSObject indicates an expected call of DescribeSObject.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) DescribeSObject(in any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSObject", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).DescribeSObject), in)
-}
-
-// DescribeSObjects mocks base method.
-func (m *MockForceApiSObjectInterface) DescribeSObjects() (map[string]*force.SObjectMetaData, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeSObjects")
-	ret0, _ := ret[0].(map[string]*force.SObjectMetaData)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DescribeSObjects indicates an expected call of DescribeSObjects.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) DescribeSObjects() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSObjects", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).DescribeSObjects))
-}
-
-// Get mocks base method.
-func (m *MockForceApiSObjectInterface) Get(path string, params url.Values, out any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", path, params, out)
+	ret := m.ctrl.Call(m, "RefreshToken")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Get indicates an expected call of Get.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) Get(path, params, out any) *gomock.Call {
+// RefreshToken indicates an expected call of RefreshToken.
+func (mr *MockForceApiInterfaceMockRecorder) RefreshToken() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).Get), path, params, out)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefreshToken", reflect.TypeOf((*MockForceApiInterface)(nil).RefreshToken))
 }
 
-// GetAccessToken mocks base method.
-func (m *MockForceApiSObjectInterface) GetAccessToken() string {
+// TraceOff mocks base method.
+func (m *MockForceApiInterface) TraceOff() {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAccessToken")
-	ret0, _ := ret[0].(string)
-	return ret0
+	m.ctrl.Call(m, "TraceOff")
 }
 
-// GetAccessToken indicates an expected call of GetAccessToken.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) GetAccessToken() *gomock.Call {
+// TraceOff indicates an expected call of TraceOff.
+func (mr *MockForceApiInterfaceMockRecorder) TraceOff() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccessToken", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).GetAccessToken))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TraceOff", reflect.TypeOf((*MockForceApiInterface)(nil).TraceOff))
 }
 
-// GetInstanceURL mocks base method.
-func (m *MockForceApiSObjectInterface) GetInstanceURL() string {
+// TraceOn mocks base method.
+func (m *MockForceApiInterface) TraceOn(prefix string, logger force.ApiLogger) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetInstanceURL")
-	ret0, _ := ret[0].(string)
-	return ret0
+	m.ctrl.Call(m, "TraceOn", prefix, logger)
 }
 
-// GetInstanceURL indicates an expected call of GetInstanceURL.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) GetInstanceURL() *gomock.Call {
+// TraceOn indicates an expected call of TraceOn.
+func (mr *MockForceApiInterfaceMockRecorder) TraceOn(prefix, logger any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInstanceURL", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).GetInstanceURL))
-}
-
-// GetLimits mocks base method.
-func (m *MockForceApiSObjectInterface) GetLimits() (force.Limits, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLimits")
-	ret0, _ := ret[0].(force.Limits)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetLimits indicates an expected call of GetLimits.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) GetLimits() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLimits", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).GetLimits))
-}
-
-// GetOauth mocks base method.
-func (m *MockForceApiSObjectInterface) GetOauth() *force.ForceOauth {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOauth")
-	ret0, _ := ret[0].(*force.ForceOauth)
-	return ret0
-}
-
-// GetOauth indicates an expected call of GetOauth.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) GetOauth() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOauth", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).GetOauth))
-}
-
-// GetSObject mocks base method.
-func (m *MockForceApiSObjectInterface) GetSObject(id string, fields []string, out force.SObject) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSObject", id, fields, out)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// GetSObject indicates an expected call of GetSObject.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) GetSObject(id, fields, out any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSObject", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).GetSObject), id, fields, out)
-}
-
-// InsertSObject mocks base method.
-func (m *MockForceApiSObjectInterface) InsertSObject(in force.SObject) (*force.SObjectResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertSObject", in)
-	ret0, _ := ret[0].(*force.SObjectResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// InsertSObject indicates an expected call of InsertSObject.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) InsertSObject(in any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertSObject", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).InsertSObject), in)
-}
-
-// Patch mocks base method.
-func (m *MockForceApiSObjectInterface) Patch(path string, params url.Values, payload, out any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Patch", path, params, payload, out)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Patch indicates an expected call of Patch.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) Patch(path, params, payload, out any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Patch", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).Patch), path, params, payload, out)
-}
-
-// Post mocks base method.
-func (m *MockForceApiSObjectInterface) Post(path string, params url.Values, payload, out any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Post", path, params, payload, out)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Post indicates an expected call of Post.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) Post(path, params, payload, out any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).Post), path, params, payload, out)
-}
-
-// Query mocks base method.
-func (m *MockForceApiSObjectInterface) Query(query string, out any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Query", query, out)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Query indicates an expected call of Query.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) Query(query, out any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).Query), query, out)
-}
-
-// QueryAll mocks base method.
-func (m *MockForceApiSObjectInterface) QueryAll(query string, out any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "QueryAll", query, out)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// QueryAll indicates an expected call of QueryAll.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) QueryAll(query, out any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryAll", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).QueryAll), query, out)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TraceOn", reflect.TypeOf((*MockForceApiInterface)(nil).TraceOn), prefix, logger)
 }
 
 // UpdateSObject mocks base method.
-func (m *MockForceApiSObjectInterface) UpdateSObject(id string, in force.SObject) error {
+func (m *MockForceApiInterface) UpdateSObject(id string, in force.SObject) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSObject", id, in)
 	ret0, _ := ret[0].(error)
@@ -469,9 +399,9 @@ func (m *MockForceApiSObjectInterface) UpdateSObject(id string, in force.SObject
 }
 
 // UpdateSObject indicates an expected call of UpdateSObject.
-func (mr *MockForceApiSObjectInterfaceMockRecorder) UpdateSObject(id, in any) *gomock.Call {
+func (mr *MockForceApiInterfaceMockRecorder) UpdateSObject(id, in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSObject", reflect.TypeOf((*MockForceApiSObjectInterface)(nil).UpdateSObject), id, in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSObject", reflect.TypeOf((*MockForceApiInterface)(nil).UpdateSObject), id, in)
 }
 
 // MockForceApiResponse is a mock of ForceApiResponse interface.

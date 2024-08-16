@@ -6,9 +6,10 @@ import (
 	"time"
 )
 
-var isCsvError = regexp.MustCompile(`[ -~].*CSV[ -~].*`).MatchString
+// errRegexp prüft, ob in einem (Error-)String CSV enthalten ist ([ -~] matched alle Zeichen vom Space bis zur Tilde)
+var errRegexp = regexp.MustCompile(`[ -~].*CSV[ -~].*`)
 
-func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (JobOperation, error) {
+func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (*JobOperation, error) {
 	tt := time.NewTicker(tickerSeconds * time.Second)
 	defer tt.Stop()
 
@@ -23,7 +24,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 				status = &JobInfo{}
 				err := forceApi.Get(statusURI, nil, status)
 				if err != nil {
-					return op, err
+					return &op, err
 				}
 
 				statePrefix := fmt.Sprintf("Status %s", status.State)
@@ -34,13 +35,13 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
 					err = forceApi.Get(failedResultURI, nil, jobFailed)
 					if err != nil {
-						return op, err
+						return &op, err
 					}
 
 					op.ProgressReporter(statePrefix)
 
-					if jobFailed.ErrorName == "InvalidBatch" && isCsvError(jobFailed.ErrorDescription) {
-						return op, jobFailed
+					if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
+						return &op, jobFailed
 					}
 
 					break STATUS
@@ -57,7 +58,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 		op.NumberRecordsProcessed += status.NumberRecordsProcessed
 		op.ResponseMessages = append(op.ResponseMessages, status.JobMessage)
 	}
-	return op, nil
+	return &op, nil
 }
 
 func executeProgReporter(pr func(msg string), state, statePrefix string) {

@@ -15,7 +15,7 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	type fields struct {
-		fApi func() force.ForceApiSObjectInterface
+		fApi func() force.ForceApiInterface
 	}
 	type args struct {
 		op       force.JobOperation
@@ -30,8 +30,8 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		{
 			name: "Test Run with empty Ops",
 			fields: fields{
-				fApi: func() force.ForceApiSObjectInterface {
-					fApi := mocks.NewMockForceApiSObjectInterface(ctrl)
+				fApi: func() force.ForceApiInterface {
+					fApi := mocks.NewMockForceApiInterface(ctrl)
 					fApi.EXPECT().CheckJobStatus(gomock.Any(), gomock.Any()).Return(force.JobOperation{}, nil)
 					return fApi
 				},
@@ -45,8 +45,8 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		{
 			name: "Run with all normal response states",
 			fields: fields{
-				fApi: func() force.ForceApiSObjectInterface {
-					fApi := mocks.NewMockForceApiSObjectInterface(ctrl)
+				fApi: func() force.ForceApiInterface {
+					fApi := mocks.NewMockForceApiInterface(ctrl)
 					var jobInfo *force.JobInfo
 					i := 0
 					fApi.EXPECT().Get("/services/data/"+force.DefaultAPIVersion+"/jobs/ingest/12341234", gomock.Any(), gomock.AssignableToTypeOf(jobInfo)).DoAndReturn(func(url string, params any, jobinfo *force.JobInfo) error {
@@ -78,8 +78,8 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		{
 			name: "Run with unknown response state",
 			fields: fields{
-				fApi: func() force.ForceApiSObjectInterface {
-					fApi := mocks.NewMockForceApiSObjectInterface(ctrl)
+				fApi: func() force.ForceApiInterface {
+					fApi := mocks.NewMockForceApiInterface(ctrl)
 					var jobInfo *force.JobInfo
 					i := 0
 					fApi.EXPECT().Get("/services/data/"+force.DefaultAPIVersion+"/jobs/ingest/12341234", gomock.Any(), gomock.AssignableToTypeOf(jobInfo)).DoAndReturn(func(url string, params any, jobinfo *force.JobInfo) error {
@@ -91,8 +91,6 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 						i++
 						return nil
 					}).AnyTimes()
-					failedResultErr := force.FailedResultsError{}
-					fApi.EXPECT().Get("/services/data/"+force.DefaultAPIVersion+"/jobs/ingest/12341234/failedResults", gomock.Any(), gomock.AssignableToTypeOf(failedResultErr)).Return(nil)
 					fApi.EXPECT().CheckJobStatus(gomock.Any(), gomock.Any()).Return(force.JobOperation{}, nil)
 					return fApi
 				},

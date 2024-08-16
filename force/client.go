@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	version      = "1.1.0"
+	version      = "1.1.3"
 	userAgent    = "go-force/" + version
 	contentType  = "application/json"
 	responseType = "application/json"
