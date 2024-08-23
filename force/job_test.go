@@ -35,7 +35,7 @@ func TestCheckJobStatus(t *testing.T) {
 		t.Fatalf("Could not run the job: %v ", err)
 	}
 
-	_, err = (*fapi).CheckJobStatus(ops, 3)
+	_, err = fapi.CheckJobStatus(ops, 3)
 
 	if err != nil {
 		deleteSObject(fapi, t, accObj.Id)
@@ -58,7 +58,7 @@ func objMapper(objects any) [][]string {
 	return records
 }
 
-func insertSAccount(forceApi *ForceApiInterface, t *testing.T) *sobjects.Account {
+func insertSAccount(forceApi ForceApiInterface, t *testing.T) *sobjects.Account {
 	// Need some random text for name field.
 	someText := randomString(10)
 
@@ -66,7 +66,7 @@ func insertSAccount(forceApi *ForceApiInterface, t *testing.T) *sobjects.Account
 	acc := &sobjects.Account{}
 	acc.Name = someText
 
-	resp, err := (*forceApi).InsertSObject(acc)
+	resp, err := forceApi.InsertSObject(acc)
 	if err != nil {
 		t.Fatalf("Insert SObject Account failed: %v", err)
 	}

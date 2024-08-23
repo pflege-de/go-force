@@ -80,7 +80,7 @@ func WithRefreshToken(clientId, clientSecret, refreshToken string) APIConfig {
 	}
 }
 
-func NewClient(cfg ...APIConfig) (*ForceApiInterface, error) {
+func NewClient(cfg ...APIConfig) (ForceApiInterface, error) {
 	f := &ForceApi{
 		apiResources:           make(map[string]string),
 		apiSObjects:            make(map[string]*SObjectMetaData),
@@ -127,18 +127,17 @@ func NewClient(cfg ...APIConfig) (*ForceApiInterface, error) {
 		return nil, err
 	}
 
-	var fapi ForceApiInterface = f
-	return &fapi, nil
+	return f, nil
 }
 
-func Create(version, clientId, clientSecret, userName, password, securityToken, environment string) (*ForceApiInterface, error) {
+func Create(version, clientId, clientSecret, userName, password, securityToken, environment string) (ForceApiInterface, error) {
 	return NewClient(
 		WithOAuth(version, clientId, clientSecret, userName, password, securityToken, environment),
 		WithClient(http.DefaultClient),
 	)
 }
 
-func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, httpClient *http.Client) (*ForceApiInterface, error) {
+func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, httpClient *http.Client) (ForceApiInterface, error) {
 	return NewClient(
 		WithAccessToken(clientId, accessToken, instanceUrl),
 		WithClient(httpClient),
@@ -146,7 +145,7 @@ func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, h
 }
 
 // TODO: This likely never has worked because the refresh token passed in forceApi.RefreshToken() is always an empty string?
-func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) (*ForceApiInterface, error) {
+func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) (ForceApiInterface, error) {
 	oauth := &ForceOauth{
 		clientId:    clientId,
 		AccessToken: accessToken,
@@ -181,12 +180,11 @@ func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) 
 		return nil, err
 	}
 
-	var fapi ForceApiInterface = forceApi
-	return &fapi, nil
+	return forceApi, nil
 }
 
 // Used when running tests.
-func createTest() *ForceApiInterface {
+func createTest() ForceApiInterface {
 	forceApi, err := Create(testVersion, testClientId, testClientSecret, testUserName, testPassword, testSecurityToken, testEnvironment)
 	if err != nil {
 		fmt.Printf("Unable to create ForceApi for test: %v", err)

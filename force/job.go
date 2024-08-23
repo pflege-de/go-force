@@ -11,7 +11,7 @@ import (
 )
 
 // CreateJob creates a new pointer to an instance of Job. Can be Modified with the given JobOptionsFuncs
-func CreateJob(fapi *ForceApiInterface, opts ...OptionsFunc) *Job {
+func CreateJob(fapi ForceApiInterface, opts ...OptionsFunc) *Job {
 	job := &Job{
 		forceApi:     fapi,
 		operation:    JobOperation{},
@@ -68,7 +68,7 @@ func (job *Job) Start() error {
 		"operation": job.operation.Operation,
 	}
 
-	if err := (*job.forceApi).Post("/services/data/"+job.apiVersion+"/jobs/ingest", nil, params, job.info); err != nil {
+	if err := job.forceApi.Post("/services/data/"+job.apiVersion+"/jobs/ingest", nil, params, job.info); err != nil {
 		return err
 	}
 	job.operation.ProgressReporter("job created")
@@ -88,7 +88,7 @@ func (job *Job) Run(payload any) error {
 	}
 
 	urlFormat := "%s%s"
-	instanceUrl := (*job.forceApi).GetInstanceURL()
+	instanceUrl := job.forceApi.GetInstanceURL()
 	contentUrl := job.info.ContentURL
 	if !strings.HasPrefix(contentUrl, "/") && !strings.HasSuffix(instanceUrl, "/") {
 		urlFormat = "%s/%s"
@@ -100,7 +100,7 @@ func (job *Job) Run(payload any) error {
 	}
 
 	req.Header.Set("Content-Type", "text/csv")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", (*job.forceApi).GetAccessToken()))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", job.forceApi.GetAccessToken()))
 
 	res, err := job.client.Do(req)
 	if err != nil {
@@ -122,7 +122,7 @@ func (job *Job) Run(payload any) error {
 		"state": "UploadComplete",
 	}
 
-	if err := (*job.forceApi).Patch(statusURI, nil, params, job.info); err != nil {
+	if err := job.forceApi.Patch(statusURI, nil, params, job.info); err != nil {
 		return err
 	}
 
@@ -144,7 +144,7 @@ func (job *Job) marshalCSV(payload any) (io.Reader, error) {
 	return bytes.NewReader(bulkData.Bytes()), nil
 }
 
-func (job *Job) GetForceApi() *ForceApiInterface {
+func (job *Job) GetForceApi() ForceApiInterface {
 	return job.forceApi
 }
 
