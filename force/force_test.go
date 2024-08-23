@@ -39,12 +39,12 @@ func TestCreateWithAccessToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create new force api instance using pre-defined oauth details: %#v", err)
 	}
-	if err := (*newForceApi).GetOauth().Validate(); err != nil {
+	if err := newForceApi.GetOauth().Validate(); err != nil {
 		t.Fatalf("Oauth object is invlaid: %#v", err)
 	}
 
 	// We should be able to make a basic query now with the newly created object (i.e. the oauth details should be correctly usable).
-	_, err = (*newForceApi).DescribeSObject(&sobjects.Account{})
+	_, err = newForceApi.DescribeSObject(&sobjects.Account{})
 	if err != nil {
 		t.Fatalf("Failed to retrieve description of sobject: %v", err)
 	}
