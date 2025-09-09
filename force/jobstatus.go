@@ -4,57 +4,62 @@ import (
 	"fmt"
 	"regexp"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // errRegexp prüft, ob in einem (Error-)String CSV enthalten ist ([ -~] matched alle Zeichen vom Space bis zur Tilde)
 var errRegexp = regexp.MustCompile(`[ -~].*CSV[ -~].*`)
 
-func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (JobOperation, error) {
-	tt := time.Tick(tickerSeconds * time.Second)
+func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration) (JobOperation, error) {
+	var g errgroup.Group
 
 	for _, jobID := range op.JobIDs {
-		statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
-		var status *JobInfo
-
-	STATUS:
-		for range tt {
-			status = &JobInfo{}
-			err := forceApi.Get(statusURI, nil, status)
-			if err != nil {
-				return op, err
-			}
-
-			statePrefix := fmt.Sprintf("Status %s", status.State)
-
-			switch status.State {
-			case "Failed":
-				jobFailed := FailedResultsError{}
-				failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
-				err = forceApi.Get(failedResultURI, nil, jobFailed)
+		g.Go(func() error {
+			tt := time.Tick(interval * time.Second)
+			statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
+			var status *JobInfo
+			for range tt {
+				status = &JobInfo{}
+				err := forceApi.Get(statusURI, nil, status)
 				if err != nil {
-					return op, err
+					return err
 				}
 
-				op.ProgressReporter(statePrefix)
+				op.NumberRecordsFailed += status.NumberRecordsFailed
+				op.NumberRecordsProcessed += status.NumberRecordsProcessed
+				op.ResponseMessages = append(op.ResponseMessages, status.JobMessage)
+				statePrefix := fmt.Sprintf("Status %s", status.State)
 
-				if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
-					return op, jobFailed
+				switch status.State {
+				case "Failed":
+					jobFailed := FailedResultsError{}
+					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
+					err = forceApi.Get(failedResultURI, nil, jobFailed)
+					if err != nil {
+						return err
+					}
+
+					op.ProgressReporter(statePrefix)
+
+					if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
+						return jobFailed
+					}
+				case "Aborted", "JobComplete":
+					op.ProgressReporter(statePrefix)
+					return nil
+				default:
+					executeProgReporter(op.ProgressReporter, status.State, statePrefix)
 				}
-
-				break STATUS
-			case "Aborted", "JobComplete":
-				op.ProgressReporter(statePrefix)
-				break STATUS
-			default:
-				executeProgReporter(op.ProgressReporter, status.State, statePrefix)
 			}
-		}
 
-		op.NumberRecordsFailed += status.NumberRecordsFailed
-		op.NumberRecordsProcessed += status.NumberRecordsProcessed
-		op.ResponseMessages = append(op.ResponseMessages, status.JobMessage)
+			return nil
+		})
 	}
-	return op, nil
+
+	err := g.Wait()
+
+	return op, err
 }
 
 func executeProgReporter(pr func(msg string), state, statePrefix string) {
