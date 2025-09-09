@@ -14,9 +14,13 @@ var errRegexp = regexp.MustCompile(`[ -~].*CSV[ -~].*`)
 func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration) (JobOperation, error) {
 	var g errgroup.Group
 
+	if interval <= 0 {
+		interval = 2 * time.Second
+	}
+
 	for _, jobID := range op.JobIDs {
 		g.Go(func() error {
-			tt := time.Tick(interval * time.Second)
+			tt := time.Tick(interval)
 			statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
 			var status *JobInfo
 			for range tt {
