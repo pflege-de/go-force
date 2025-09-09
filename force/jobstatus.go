@@ -18,39 +18,36 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 		var status *JobInfo
 
 	STATUS:
-		for {
-			select {
-			case <-tt.C:
-				status = &JobInfo{}
-				err := forceApi.Get(statusURI, nil, status)
+		for range tt.C {
+			status = &JobInfo{}
+			err := forceApi.Get(statusURI, nil, status)
+			if err != nil {
+				return op, err
+			}
+
+			statePrefix := fmt.Sprintf("Status %s", status.State)
+
+			switch status.State {
+			case "Failed":
+				jobFailed := FailedResultsError{}
+				failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
+				err = forceApi.Get(failedResultURI, nil, jobFailed)
 				if err != nil {
 					return op, err
 				}
 
-				statePrefix := fmt.Sprintf("Status %s", status.State)
+				op.ProgressReporter(statePrefix)
 
-				switch status.State {
-				case "Failed":
-					jobFailed := FailedResultsError{}
-					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
-					err = forceApi.Get(failedResultURI, nil, jobFailed)
-					if err != nil {
-						return op, err
-					}
-
-					op.ProgressReporter(statePrefix)
-
-					if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
-						return op, jobFailed
-					}
-
-					break STATUS
-				case "Aborted", "JobComplete":
-					op.ProgressReporter(statePrefix)
-					break STATUS
-				default:
-					executeProgReporter(op.ProgressReporter, status.State, statePrefix)
+				if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
+					return op, jobFailed
 				}
+
+				break STATUS
+			case "Aborted", "JobComplete":
+				op.ProgressReporter(statePrefix)
+				break STATUS
+			default:
+				executeProgReporter(op.ProgressReporter, status.State, statePrefix)
 			}
 		}
 
