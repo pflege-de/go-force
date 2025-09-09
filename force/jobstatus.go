@@ -10,15 +10,14 @@ import (
 var errRegexp = regexp.MustCompile(`[ -~].*CSV[ -~].*`)
 
 func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Duration) (JobOperation, error) {
-	tt := time.NewTicker(tickerSeconds * time.Second)
-	defer tt.Stop()
+	tt := time.Tick(tickerSeconds * time.Second)
 
 	for _, jobID := range op.JobIDs {
 		statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
 		var status *JobInfo
 
 	STATUS:
-		for range tt.C {
+		for _ := range tt {
 			status = &JobInfo{}
 			err := forceApi.Get(statusURI, nil, status)
 			if err != nil {
