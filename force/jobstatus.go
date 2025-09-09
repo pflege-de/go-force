@@ -17,7 +17,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, tickerSeconds time.Dur
 		var status *JobInfo
 
 	STATUS:
-		for _ := range tt {
+		for range tt {
 			status = &JobInfo{}
 			err := forceApi.Get(statusURI, nil, status)
 			if err != nil {
