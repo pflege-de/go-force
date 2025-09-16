@@ -49,6 +49,8 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration
 					if jobFailed.ErrorName == "InvalidBatch" && errRegexp.MatchString(jobFailed.ErrorDescription) {
 						return jobFailed
 					}
+
+					return nil // NOTE (CARECON-1352): equivalent to the behavior prior to v1.1.8
 				case "Aborted", "JobComplete":
 					op.ProgressReporter(statePrefix)
 					return nil
