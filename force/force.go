@@ -22,7 +22,9 @@ type APIConfig func(*ForceApi)
 
 func WithClient(c *http.Client) APIConfig {
 	return func(f *ForceApi) {
-		f.httpClient = c
+		if c != nil {
+			f.httpClient = c
+		}
 	}
 }
 
