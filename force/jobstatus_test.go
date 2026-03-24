@@ -9,7 +9,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-//go:generate mockgen -source=JobTypes.go -destination=mocks/JobTypes.go -package mocks
+//go:generate go tool mockgen -source=JobTypes.go -destination=mocks/JobTypes.go -package mocks
 
 func TestForceApi_checkJobStatus(t *testing.T) {
 	ctrl := gomock.NewController(t)
