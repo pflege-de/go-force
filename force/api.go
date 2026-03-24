@@ -3,6 +3,8 @@ package force
 import (
 	"fmt"
 	"net/http"
+
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -21,7 +23,8 @@ const (
 
 type ForceApi struct {
 	apiVersion             string
-	oauth                  *ForceOauth
+	instance               string
+	accessTokenSource      oauth2.TokenSource
 	apiResources           map[string]string
 	apiSObjects            map[string]*SObjectMetaData
 	apiSObjectDescriptions map[string]*SObjectDescription
@@ -215,27 +218,31 @@ func (forceApi *ForceApi) getApiSObjectDescriptions() error {
 }
 
 func (forceApi *ForceApi) GetInstanceURL() string {
-	return forceApi.oauth.InstanceUrl
+	return forceApi.instance
 }
 
 func (forceApi *ForceApi) GetAccessToken() string {
-	return forceApi.oauth.AccessToken
+	token, err := forceApi.accessTokenSource.Token()
+
+	if err != nil {
+		// NOTE: it would be rather more sensible to return an error here,
+		// but we can't if we want to preserve backwards compatibility...
+		return ""
+	}
+
+	return token.AccessToken
 }
 
 func (forceApi *ForceApi) RefreshToken() error {
-	res := &RefreshTokenResponse{}
-	payload := map[string]string{
-		"grant_type":    "refresh_token",
-		"refresh_token": forceApi.oauth.refreshToken,
-		"client_id":     forceApi.oauth.clientId,
-		"client_secret": forceApi.oauth.clientSecret,
+	// NOTE: from now on, we support refreshing access tokens transparently;
+	// we leave it up to the token source to either return the the current
+	// (still valid) access token, obtain a new access token via the refresh
+	// token flow (if the underlying configuration allows it) or simply fall
+	// back to acquiring a new access token using the token exchange flow...
+
+	if _, err := forceApi.accessTokenSource.Token(); err != nil {
+		return fmt.Errorf("failed to acquire access token: %w", err)
 	}
 
-	err := forceApi.Post("/services/oauth2/token", nil, payload, res)
-	if err != nil {
-		return err
-	}
-
-	forceApi.oauth.AccessToken = res.AccessToken
 	return nil
 }

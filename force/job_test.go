@@ -1,11 +1,14 @@
 package force
 
 import (
-	"github.com/pflege-de/go-force/sobjects"
 	"testing"
+
+	"github.com/pflege-de/go-force/sobjects"
 )
 
 func TestCheckJobStatus(t *testing.T) {
+	t.Skip("unavailable due to storage limits exceeded error for the test instance")
+
 	fapi := createTest()
 	accObj := insertSAccount(fapi, t)
 

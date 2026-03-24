@@ -57,7 +57,6 @@ type ForceApiInterface interface {
 
 	TraceOn(prefix string, logger ApiLogger)
 	TraceOff()
-	GetOauth() *ForceOauth
 
 	GetLimits() (limits Limits, err error)
 

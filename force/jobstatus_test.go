@@ -1,11 +1,11 @@
 package force_test
 
 import (
-	"github.com/pflege-de/go-force/force"
-	"github.com/pflege-de/go-force/force/mocks"
 	"testing"
 	"time"
 
+	"github.com/pflege-de/go-force/force"
+	"github.com/pflege-de/go-force/force/mocks"
 	"go.uber.org/mock/gomock"
 )
 

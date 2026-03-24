@@ -4,20 +4,14 @@
 package force
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"regexp"
-)
+	"strings"
 
-const (
-	testVersion       = "v53.0"
-	testClientId      = "3MVG9A2kN3Bn17hs8MIaQx1voVGy662rXlC37svtmLmt6wO_iik8Hnk3DlcYjKRvzVNGWLFlGRH1ryHwS217h"
-	testClientSecret  = "4165772184959202901"
-	testUserName      = "go-force@jalali.net"
-	testPassword      = "golangrocks3"
-	testSecurityToken = "kAlicVmti9nWRKRiWG3Zvqtte" //nolint:gosec Just for testing purpose
-	testEnvironment   = "production"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -32,19 +26,6 @@ func WithClient(c *http.Client) APIConfig {
 	}
 }
 
-func WithOAuth(version, clientId, clientSecret, userName, password, securityToken, environment string) APIConfig {
-	return func(f *ForceApi) {
-		f.oauth = &ForceOauth{
-			clientId:      clientId,
-			clientSecret:  clientSecret,
-			userName:      userName,
-			password:      password,
-			securityToken: securityToken,
-			environment:   environment,
-		}
-	}
-}
-
 var versionCheck = regexp.MustCompile(`v\d+\.\d+`)
 
 func WithApiVersion(v string) APIConfig {
@@ -53,30 +34,24 @@ func WithApiVersion(v string) APIConfig {
 	}
 }
 
-func WithAccessToken(clientId, accessToken, instanceUrl string) APIConfig {
+func WithInstance(instance string) APIConfig {
 	return func(f *ForceApi) {
-		f.oauth = &ForceOauth{
-			clientId:    clientId,
-			AccessToken: accessToken,
-			InstanceUrl: instanceUrl,
-		}
+		f.instance = instance
 	}
 }
 
-func WithRefreshToken(clientId, clientSecret, refreshToken string) APIConfig {
+func WithAccessToken(clientId, accessToken, instanceUrl string) APIConfig {
 	return func(f *ForceApi) {
-		if f.oauth == nil {
-			f.oauth = &ForceOauth{
-				clientId:     clientId,
-				clientSecret: clientSecret,
-				refreshToken: refreshToken,
-			}
-			return
-		}
+		// NOTE: IMPORTANT: we're keeping support for (at least for the time being)
+		// this to make the transition a bit easier since we have many dependents.
+		f.instance = instanceUrl
+		f.accessTokenSource = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
+	}
+}
 
-		f.oauth.clientId = clientId
-		f.oauth.clientSecret = clientSecret
-		f.oauth.refreshToken = refreshToken
+func WithTokenSource(source oauth2.TokenSource) APIConfig {
+	return func(f *ForceApi) {
+		f.accessTokenSource = source
 	}
 }
 
@@ -97,28 +72,19 @@ func NewClient(cfg ...APIConfig) (ForceApiInterface, error) {
 		return nil, fmt.Errorf("invalid API version '%s' specified", f.apiVersion)
 	}
 
-	if f.oauth == nil {
-		return nil, fmt.Errorf("missing OAuth config")
+	if f.accessTokenSource == nil {
+		return nil, fmt.Errorf("missing access token source")
 	}
 
-	var oauthInitMethod = f.oauth.Authenticate
-	if f.oauth.AccessToken != "" {
-		if f.oauth.refreshToken != "" {
-			if err := f.RefreshToken(); err != nil {
-				return nil, fmt.Errorf("failed to refresh token: %w", err)
-			}
-		}
-		oauthInitMethod = f.oauth.Validate
-	}
-
-	// Init oauth
-	err := oauthInitMethod()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize oauth: %w", err)
+	if _, err := f.accessTokenSource.Token(); err != nil {
+		// NOTE: we attempt to immediately acquire a valid access token as a
+		// sanity check (and so that we can fail early and loudly on error).
+		// ... this will also explicitly "prime" the token source "cache"...
+		return nil, fmt.Errorf("failed to acquire access token: %w", err)
 	}
 
 	// Init ForceApi Resources
-	err = f.getApiResources()
+	err := f.getApiResources()
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +96,6 @@ func NewClient(cfg ...APIConfig) (ForceApiInterface, error) {
 	return f, nil
 }
 
-func Create(version, clientId, clientSecret, userName, password, securityToken, environment string) (ForceApiInterface, error) {
-	return NewClient(
-		WithOAuth(version, clientId, clientSecret, userName, password, securityToken, environment),
-		WithClient(http.DefaultClient),
-	)
-}
-
 func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, httpClient *http.Client) (ForceApiInterface, error) {
 	return NewClient(
 		WithAccessToken(clientId, accessToken, instanceUrl),
@@ -144,48 +103,41 @@ func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, h
 	)
 }
 
-// TODO: This likely never has worked because the refresh token passed in forceApi.RefreshToken() is always an empty string?
-func CreateWithRefreshToken(version, clientId, accessToken, instanceUrl string) (ForceApiInterface, error) {
-	oauth := &ForceOauth{
-		clientId:    clientId,
-		AccessToken: accessToken,
-		InstanceUrl: instanceUrl,
-	}
-
-	forceApi := &ForceApi{
-		apiResources:           make(map[string]string),
-		apiSObjects:            make(map[string]*SObjectMetaData),
-		apiSObjectDescriptions: make(map[string]*SObjectDescription),
-		apiVersion:             DefaultAPIVersion,
-		oauth:                  oauth,
-	}
-
-	// obtain access token
-	if err := forceApi.RefreshToken(); err != nil {
-		return nil, err
-	}
-
-	// We need to check for oath correctness here, since we are not generating the token ourselves.
-	if err := forceApi.oauth.Validate(); err != nil {
-		return nil, err
-	}
-
-	// Init ForceApi Resources
-	err := forceApi.getApiResources()
-	if err != nil {
-		return nil, err
-	}
-	err = forceApi.getApiSObjects()
-	if err != nil {
-		return nil, err
-	}
-
-	return forceApi, nil
+func CreateWithTokenSource(source oauth2.TokenSource, instance string, client *http.Client) (ForceApiInterface, error) {
+	return NewClient(WithTokenSource(source), WithInstance(instance), WithClient(client))
 }
 
 // Used when running tests.
 func createTest() ForceApiInterface {
-	forceApi, err := Create(testVersion, testClientId, testClientSecret, testUserName, testPassword, testSecurityToken, testEnvironment)
+	const (
+		testVersion     = "v53.0"
+		testEnvironment = "production"
+		testLoginUri    = "https://login.salesforce.com/services/oauth2/token"
+
+		testClientId      = "3MVG9A2kN3Bn17hs8MIaQx1voVGy662rXlC37svtmLmt6wO_iik8Hnk3DlcYjKRvzVNGWLFlGRH1ryHwS217h"
+		testClientSecret  = "4165772184959202901"
+		testUserName      = "go-force@jalali.net"
+		testPassword      = "golangrocks3"
+		testSecurityToken = "kAlicVmti9nWRKRiWG3Zvqtte" //nolint:gosec Just for testing purpose
+	)
+
+	token, err := (&oauth2.Config{
+		ClientID:     testClientId,
+		ClientSecret: testClientSecret,
+
+		Endpoint: oauth2.Endpoint{
+			TokenURL: testLoginUri,
+		},
+	}).PasswordCredentialsToken(context.Background(), testUserName, strings.Join([]string{testPassword, testSecurityToken}, ""))
+
+	if err != nil {
+		fmt.Printf("Unable to create ForceApi for test: %v", err)
+		os.Exit(1)
+	}
+
+	instance, _ := token.Extra("instance_url").(string)
+
+	forceApi, err := CreateWithAccessToken(testVersion, testClientId, token.AccessToken, instance, http.DefaultClient)
 	if err != nil {
 		fmt.Printf("Unable to create ForceApi for test: %v", err)
 		os.Exit(1)
@@ -228,8 +180,4 @@ func (forceApi *ForceApi) trace(name string, value interface{}, format string) {
 		logMsg := "%s%s " + format + "\n"
 		forceApi.logger.Printf(logMsg, forceApi.logPrefix, name, value)
 	}
-}
-
-func (forceApi *ForceApi) GetOauth() *ForceOauth {
-	return forceApi.oauth
 }
