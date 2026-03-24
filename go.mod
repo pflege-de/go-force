@@ -1,6 +1,6 @@
 module github.com/pflege-de/go-force
 
-go 1.25
+go 1.26.1
 
 require (
 	go.uber.org/mock v0.6.0
