@@ -4,6 +4,7 @@ permissions:
   contents: read
 jobs:
   build-test:
+    name: Go build and test
     strategy:
       matrix:
         go-version: ["stable", "oldstable"]
