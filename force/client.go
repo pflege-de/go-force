@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pflege-de/go-force/forcejson"
+	"github.com/pflege-de/go-force/v2/forcejson"
 )
 
 const (

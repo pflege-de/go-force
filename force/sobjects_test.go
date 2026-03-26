@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/pflege-de/go-force/sobjects"
+	"github.com/pflege-de/go-force/v2/sobjects"
 )
 
 const (

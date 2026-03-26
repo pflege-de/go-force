@@ -15,7 +15,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	force "github.com/pflege-de/go-force/force"
+	force "github.com/pflege-de/go-force/v2/force"
 	gomock "go.uber.org/mock/gomock"
 )
 

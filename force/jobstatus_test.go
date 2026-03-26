@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pflege-de/go-force/force"
-	"github.com/pflege-de/go-force/force/mocks"
+	"github.com/pflege-de/go-force/v2/force"
+	"github.com/pflege-de/go-force/v2/force/mocks"
 	"go.uber.org/mock/gomock"
 )
 

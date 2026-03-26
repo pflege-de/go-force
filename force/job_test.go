@@ -3,7 +3,7 @@ package force
 import (
 	"testing"
 
-	"github.com/pflege-de/go-force/sobjects"
+	"github.com/pflege-de/go-force/v2/sobjects"
 )
 
 func TestCheckJobStatus(t *testing.T) {

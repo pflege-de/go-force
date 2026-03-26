@@ -1,4 +1,4 @@
-module github.com/pflege-de/go-force
+module github.com/pflege-de/go-force/v2
 
 go 1.26.1
 
