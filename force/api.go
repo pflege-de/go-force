@@ -244,5 +244,20 @@ func (forceApi *ForceApi) RefreshToken() error {
 		return fmt.Errorf("failed to acquire access token: %w", err)
 	}
 
+	// NOTE: IMPORTANT: however, we still have to account for the case where the token is
+	// invalidated server-side prior to its expiry, which the token source cannot detect.
+	//
+	// We therefore perform an actual request against the SalesForce API which will fail
+	// if the token returned by the token source is rejected; and while the request will
+	// automatically be retried with a new token freshly obtained from the token source,
+	// this will not actually solve the issue unless the token source happens to decide
+	// (independently) that it wants to acquire a new token at the time of that request.
+	//
+	// But this is acceptible since the error thus returned here is a sufficient signal.
+
+	if err := forceApi.getApiResources(); err != nil {
+		return fmt.Errorf("failed to ensure token validity")
+	}
+
 	return nil
 }
