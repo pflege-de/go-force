@@ -1,0 +1,18 @@
+{
+  "baseBranches": ["main"],
+  "rebaseWhen": "conflicted",
+  "labels": ["dependencies"],
+  "automergeStrategy": "auto",
+  "automergeType": "pr",
+  "ignoreTests": true,
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "pinDigests": true,
+      "schedule": ["every weekend after 4am"]
+    }
+  ],
+  "extends": ["helpers:pinGitHubActionDigests"]
+}

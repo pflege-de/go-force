@@ -1,0 +1,25 @@
+name: Renovate
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Override default log level"
+        required: false
+        default: "info"
+        type: string
+      overrideSchedule:
+        description: "Override all schedules"
+        required: false
+        default: "false"
+        type: string
+  schedule:
+    - cron: '30 4,6 * * *'
+
+jobs:
+  call-workflow:
+    uses: pflege-de/github-workflows/.github/workflows/renovate.yml.yml@renovate/v1.0.0
+    secrets: inherit
+    with:
+      logLevel: ${{ inputs.logLevel || 'info' }}
+      overrideSchedule: ${{ github.event.inputs.overrideSchedule == 'true' && '{''schedule'':null}' || '' }}
