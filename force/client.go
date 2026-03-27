@@ -130,19 +130,6 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	apiErrors := ApiErrors{}
 	if marshalErr := forcejson.Unmarshal(respBytes, &apiErrors); marshalErr == nil {
 		if apiErrors.Validate() {
-			// Check if error is oauth token expired
-			if apiErrors.Expired() {
-				// Reauthenticate then attempt query again
-				// NOTE: we just keep this mechanism to preserve backwards compatibility
-				// and to reduce the risk of mistakes during the OAuth 2.0 refactoring,
-				// this should no longer be relevant if given a "correct" token source.
-				if _, err := forceApi.accessTokenSource.Token(); err != nil {
-					return fmt.Errorf("failed to acquire access token: %w", err)
-				}
-
-				return forceApi.request(method, path, params, payload, out)
-			}
-
 			return apiErrors
 		}
 	}
