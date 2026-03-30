@@ -83,18 +83,18 @@ func (m *MockForceApiInterface) EXPECT() *MockForceApiInterfaceMockRecorder {
 }
 
 // CheckJobStatus mocks base method.
-func (m *MockForceApiInterface) CheckJobStatus(op force.JobOperation, tickerSeconds time.Duration) (force.JobOperation, error) {
+func (m *MockForceApiInterface) CheckJobStatus(op force.JobOperation, interval time.Duration) (force.JobOperation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckJobStatus", op, tickerSeconds)
+	ret := m.ctrl.Call(m, "CheckJobStatus", op, interval)
 	ret0, _ := ret[0].(force.JobOperation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CheckJobStatus indicates an expected call of CheckJobStatus.
-func (mr *MockForceApiInterfaceMockRecorder) CheckJobStatus(op, tickerSeconds any) *gomock.Call {
+func (mr *MockForceApiInterfaceMockRecorder) CheckJobStatus(op, interval any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckJobStatus", reflect.TypeOf((*MockForceApiInterface)(nil).CheckJobStatus), op, tickerSeconds)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckJobStatus", reflect.TypeOf((*MockForceApiInterface)(nil).CheckJobStatus), op, interval)
 }
 
 // Delete mocks base method.
