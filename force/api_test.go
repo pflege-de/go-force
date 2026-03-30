@@ -66,7 +66,7 @@ func TestRefreshToken(t *testing.T) {
 
 			source := oauth2.StaticTokenSource(tt.token)
 
-			force, err := CreateWithTokenSource(source, srv.URL, http.DefaultClient)
+			force, err := CreateWithTokenSource(source, srv.URL, DefaultAPIVersion, http.DefaultClient)
 
 			if err != nil {
 				t.Fatalf("failed to initialize client: err=%v", err)

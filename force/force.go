@@ -15,6 +15,11 @@ import (
 )
 
 const (
+	// DefaultAPIVersion is the default version of the SalesForce API that will be used
+	// unless it is explicitly set by the caller (e.g., via the [WithVersion] option).
+	//
+	// Users of this library should note that the value of this constant may be changed in the future
+	// and are therefore recommended to explicitly provide a known-compatible SalesForce API version.
 	DefaultAPIVersion = "v53.0"
 )
 
@@ -30,7 +35,7 @@ func WithClient(c *http.Client) APIConfig {
 
 var versionCheck = regexp.MustCompile(`v\d+\.\d+`)
 
-func WithApiVersion(v string) APIConfig {
+func WithVersion(v string) APIConfig {
 	return func(f *ForceApi) {
 		f.apiVersion = v
 	}
@@ -42,11 +47,8 @@ func WithInstance(instance string) APIConfig {
 	}
 }
 
-func WithAccessToken(clientId, accessToken, instanceUrl string) APIConfig {
+func WithAccessToken(accessToken string) APIConfig {
 	return func(f *ForceApi) {
-		// NOTE: IMPORTANT: we're keeping support for (at least for the time being)
-		// this to make the transition a bit easier since we have many dependents.
-		f.instance = instanceUrl
 		f.accessTokenSource = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
 	}
 }
@@ -98,15 +100,12 @@ func NewClient(cfg ...APIConfig) (ForceApiInterface, error) {
 	return f, nil
 }
 
-func CreateWithAccessToken(version, clientId, accessToken, instanceUrl string, httpClient *http.Client) (ForceApiInterface, error) {
-	return NewClient(
-		WithAccessToken(clientId, accessToken, instanceUrl),
-		WithClient(httpClient),
-	)
+func CreateWithAccessToken(accessToken string, instance string, version string, client *http.Client) (ForceApiInterface, error) {
+	return NewClient(WithAccessToken(accessToken), WithInstance(instance), WithVersion(version), WithClient(client))
 }
 
-func CreateWithTokenSource(source oauth2.TokenSource, instance string, client *http.Client) (ForceApiInterface, error) {
-	return NewClient(WithTokenSource(source), WithInstance(instance), WithClient(client))
+func CreateWithTokenSource(source oauth2.TokenSource, instance string, version string, client *http.Client) (ForceApiInterface, error) {
+	return NewClient(WithTokenSource(source), WithInstance(instance), WithVersion(version), WithClient(client))
 }
 
 // Used when running tests.
@@ -139,7 +138,7 @@ func createTest() ForceApiInterface {
 
 	instance, _ := token.Extra("instance_url").(string)
 
-	forceApi, err := CreateWithAccessToken(testVersion, testClientId, token.AccessToken, instance, http.DefaultClient)
+	forceApi, err := CreateWithAccessToken(token.AccessToken, instance, testVersion, http.DefaultClient)
 	if err != nil {
 		fmt.Printf("Unable to create ForceApi for test: %v", err)
 		os.Exit(1)
