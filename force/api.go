@@ -238,16 +238,17 @@ func (forceApi *ForceApi) RefreshToken() error {
 	}
 
 	// NOTE: IMPORTANT: however, we still have to account for the case where the token is
-	// invalidated server-side prior to its expiry, which the token source cannot detect.
+	// invalidated server-side prior to its expiry, which the token source cannot detect,
+	// unless it performs actual token introspection on demand -- which we do not assume.
 	//
 	// We therefore perform an actual request against the SalesForce API which will fail
-	// if the token returned by the token source is rejected; and while the request will
-	// automatically be retried with a new token freshly obtained from the token source,
-	// this will not actually solve the issue unless the token source happens to decide
-	// (independently) that it wants to acquire a new token at the time of that request.
+	// if the token returned by the token source is not considered valid by SalesForce.
 	//
-	// But this is acceptible since the error thus returned here is a sufficient signal.
-
+	// Of course, this will lead to the following request being made unnecessarily when
+	// the token source has indeed ascertained that the token has not been invalidated.
+	//
+	// But that is a low price to pay, given that a user of this library who knows that
+	// they provide such a token source has no reason to even call this method anyway.
 	if err := forceApi.getApiResources(); err != nil {
 		return fmt.Errorf("failed to ensure token validity")
 	}
