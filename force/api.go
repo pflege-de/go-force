@@ -35,13 +35,6 @@ type ForceApi struct {
 	httpClient *http.Client
 }
 
-type RefreshTokenResponse struct {
-	ID          string `json:"id"`
-	IssuedAt    string `json:"issued_at"`
-	Signature   string `json:"signature"`
-	AccessToken string `json:"access_token"`
-}
-
 type SObjectApiResponse struct {
 	Encoding     string             `json:"encoding"`
 	MaxBatchSize int64              `json:"maxBatchSize"`
