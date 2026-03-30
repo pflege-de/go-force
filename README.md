@@ -4,7 +4,7 @@
 [![build status](https://github.com/pflege-de/go-force/workflows/build/badge.svg)](https://github.com/pflege-de/go-force/actions?query=workflow%3Abuild)
 [![Go version](https://img.shields.io/github/go-mod/go-version/pflege-de/go-force)](https://github.com/pflege-de/go-force/blob/master/go.mod)
 [![Current Release](https://img.shields.io/github/v/release/pflege-de/go-force.svg)](https://github.com/pflege-de/go-force/releases)
-[![godoc](https://godoc.org/github.com/pflege-de/go-force?status.svg)](https://godoc.org/github.com/pflege-de/go-force)
+[![godoc](https://godoc.org/github.com/pflege-de/go-force/v2?status.svg)](https://godoc.org/github.com/pflege-de/go-force/v2)
 <!-- [![Go Coverage](https://github.com/pflege-de/go-force/wiki/coverage.svg)](https://raw.githack.com/wiki/pflege-de/go-force/coverage.html) -->
 [![License](https://img.shields.io/github/license/pflege-de/go-force)](https://github.com/pflege-de/go-force/blob/master/LICENSE)
 
@@ -14,7 +14,9 @@ This repo is based on <https://github.com/nimajalali/go-force> which seems to be
 
 ## Installation
 
- go get github.com/pflege-de/go-force/force
+```sh
+go get github.com/pflege-de/go-force/v2
+```
 
 ## Example
 
@@ -24,9 +26,10 @@ package main
 import (
  "fmt"
  "log"
+ "net/http"
 
- "github.com/pflege-de/go-force/force"
- "github.com/pflege-de/go-force/sobjects"
+ "github.com/pflege-de/go-force/v2/force"
+ "github.com/pflege-de/go-force/v2/sobjects"
 )
 
 type SomeCustomSObject struct {
@@ -48,15 +51,8 @@ type SomeCustomSObjectQueryResponse struct {
 
 func main() {
  // Init the force
- forceApi, err := force.Create(
-  "YOUR-API-VERSION",
-  "YOUR-CLIENT-ID",
-  "YOUR-CLIENT-SECRET",
-  "YOUR-USERNAME",
-  "YOUR-PASSWORD",
-  "YOUR-SECURITY-TOKEN",
-  "YOUR-ENVIRONMENT",
- )
+ forceApi, err := force.CreateWithAccessToken("YOUR-STATIC-ACCESS-TOKEN", "YOUR-SALESFORCE-INSTANCE", "YOUR-API-VERSION", http.DefaultClient)
+
  if err != nil {
   log.Fatal(err)
  }
@@ -83,5 +79,5 @@ func main() {
 
 ## Documentation
 
-* [Package Reference](http://godoc.org/github.com/pflege-de/go-force/force)
+* [Package Reference](http://godoc.org/github.com/pflege-de/go-force/v2/force)
 * [Force.com API Reference](http://www.salesforce.com/us/developer/docs/api_rest/)
