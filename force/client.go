@@ -103,7 +103,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	if err != nil {
 		return fmt.Errorf("error sending %v request: %w", method, err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint: errcheck
 	forceApi.traceResponse(resp)
 
 	// Sometimes the force API returns no body, we should catch this early

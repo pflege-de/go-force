@@ -194,22 +194,6 @@ func (forceApi *ForceApi) getApiSObjects() error {
 	return nil
 }
 
-func (forceApi *ForceApi) getApiSObjectDescriptions() error {
-	for name, metaData := range forceApi.apiSObjects {
-		uri := metaData.URLs[sObjectDescribeKey]
-
-		desc := &SObjectDescription{}
-		err := forceApi.Get(uri, nil, desc)
-		if err != nil {
-			return err
-		}
-
-		forceApi.apiSObjectDescriptions[name] = desc
-	}
-
-	return nil
-}
-
 func (forceApi *ForceApi) GetInstanceURL() string {
 	return forceApi.instance
 }
