@@ -15,7 +15,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	force "github.com/pflege-de/go-force/force"
+	force "github.com/pflege-de/go-force/v2/force"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -23,6 +23,7 @@ import (
 type MockBulkClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockBulkClientMockRecorder
+	isgomock struct{}
 }
 
 // MockBulkClientMockRecorder is the mock recorder for MockBulkClient.
@@ -61,6 +62,7 @@ func (mr *MockBulkClientMockRecorder) Do(req any) *gomock.Call {
 type MockForceApiInterface struct {
 	ctrl     *gomock.Controller
 	recorder *MockForceApiInterfaceMockRecorder
+	isgomock struct{}
 }
 
 // MockForceApiInterfaceMockRecorder is the mock recorder for MockForceApiInterface.
@@ -81,18 +83,18 @@ func (m *MockForceApiInterface) EXPECT() *MockForceApiInterfaceMockRecorder {
 }
 
 // CheckJobStatus mocks base method.
-func (m *MockForceApiInterface) CheckJobStatus(op force.JobOperation, tickerSeconds time.Duration) (force.JobOperation, error) {
+func (m *MockForceApiInterface) CheckJobStatus(op force.JobOperation, interval time.Duration) (force.JobOperation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckJobStatus", op, tickerSeconds)
+	ret := m.ctrl.Call(m, "CheckJobStatus", op, interval)
 	ret0, _ := ret[0].(force.JobOperation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CheckJobStatus indicates an expected call of CheckJobStatus.
-func (mr *MockForceApiInterfaceMockRecorder) CheckJobStatus(op, tickerSeconds any) *gomock.Call {
+func (mr *MockForceApiInterfaceMockRecorder) CheckJobStatus(op, interval any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckJobStatus", reflect.TypeOf((*MockForceApiInterface)(nil).CheckJobStatus), op, tickerSeconds)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckJobStatus", reflect.TypeOf((*MockForceApiInterface)(nil).CheckJobStatus), op, interval)
 }
 
 // Delete mocks base method.
@@ -208,20 +210,6 @@ func (m *MockForceApiInterface) GetLimits() (force.Limits, error) {
 func (mr *MockForceApiInterfaceMockRecorder) GetLimits() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLimits", reflect.TypeOf((*MockForceApiInterface)(nil).GetLimits))
-}
-
-// GetOauth mocks base method.
-func (m *MockForceApiInterface) GetOauth() *force.ForceOauth {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOauth")
-	ret0, _ := ret[0].(*force.ForceOauth)
-	return ret0
-}
-
-// GetOauth indicates an expected call of GetOauth.
-func (mr *MockForceApiInterfaceMockRecorder) GetOauth() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOauth", reflect.TypeOf((*MockForceApiInterface)(nil).GetOauth))
 }
 
 // GetSObject mocks base method.
@@ -408,6 +396,7 @@ func (mr *MockForceApiInterfaceMockRecorder) UpdateSObject(id, in any) *gomock.C
 type MockForceApiResponse struct {
 	ctrl     *gomock.Controller
 	recorder *MockForceApiResponseMockRecorder
+	isgomock struct{}
 }
 
 // MockForceApiResponseMockRecorder is the mock recorder for MockForceApiResponse.
@@ -473,6 +462,7 @@ func (mr *MockForceApiResponseMockRecorder) GetRecords() *gomock.Call {
 type MockForceApiEvent struct {
 	ctrl     *gomock.Controller
 	recorder *MockForceApiEventMockRecorder
+	isgomock struct{}
 }
 
 // MockForceApiEventMockRecorder is the mock recorder for MockForceApiEvent.

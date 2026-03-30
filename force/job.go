@@ -106,7 +106,7 @@ func (job *Job) Run(payload any) error {
 	if err != nil {
 		return fmt.Errorf("could not put csv bulk data. %w", err)
 	}
-	defer res.Body.Close()
+	defer res.Body.Close() // nolint: errcheck
 
 	if res.StatusCode != http.StatusCreated {
 		errb, err := io.ReadAll(res.Body)

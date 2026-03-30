@@ -17,27 +17,29 @@ import "encoding/json"
 type SFBool int
 
 func (t *SFBool) MarshalJSON() ([]byte, error) {
-	if *t == 1 {
+	switch *t {
+	case 1:
 		return json.Marshal(true)
-	} else if *t == -1 {
+	case -1:
 		return json.Marshal(false)
+	default:
+		return json.Marshal(0)
 	}
-	return json.Marshal(0)
 }
 
 func (t *SFBool) UnmarshalJSON(data []byte) error {
-	b := string(data)
-	if b == "true" {
+	switch string(data) {
+	case "true":
 		*t = 1
-	} else if b == "false" {
+		return nil
+	case "false":
 		*t = -1
+		return nil
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (t *SFBool) Bool() bool {
-	if *t == 1 {
-		return true
-	}
-	return false
+	return *t == 1
 }

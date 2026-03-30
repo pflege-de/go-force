@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+const (
+	invalidSessionErrorCode = "INVALID_SESSION_ID"
+)
+
 // ApiErrors to handle salesforce api responses.
 type ApiErrors []*ApiError
 
@@ -31,6 +35,16 @@ func (e ApiErrors) String() string {
 
 func (e ApiErrors) Validate() bool {
 	return len(e) != 0
+}
+
+func (e ApiErrors) Expired() bool {
+	for _, err := range e {
+		if err.ErrorCode == invalidSessionErrorCode {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (e ApiError) Error() string {

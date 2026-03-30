@@ -1,10 +1,11 @@
 package sobjects
 
 import (
-	"github.com/pflege-de/go-force/forcejson"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/pflege-de/go-force/v2/forcejson"
 )
 
 type Thing struct {

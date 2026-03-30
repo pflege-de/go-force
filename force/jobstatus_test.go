@@ -1,15 +1,15 @@
 package force_test
 
 import (
-	"github.com/pflege-de/go-force/force"
-	"github.com/pflege-de/go-force/force/mocks"
 	"testing"
 	"time"
 
+	"github.com/pflege-de/go-force/v2/force"
+	"github.com/pflege-de/go-force/v2/force/mocks"
 	"go.uber.org/mock/gomock"
 )
 
-//go:generate mockgen -source=JobTypes.go -destination=mocks/JobTypes.go -package mocks
+//go:generate go tool mockgen -source=JobTypes.go -destination=mocks/JobTypes.go -package mocks
 
 func TestForceApi_checkJobStatus(t *testing.T) {
 	ctrl := gomock.NewController(t)

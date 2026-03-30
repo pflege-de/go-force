@@ -1,9 +1,10 @@
 package force
 
 import (
-	"github.com/pflege-de/go-force/sobjects"
 	"math/rand"
 	"testing"
+
+	"github.com/pflege-de/go-force/v2/sobjects"
 )
 
 const (
@@ -105,6 +106,8 @@ func TestUpdateSObject(t *testing.T) {
 }
 
 func TestInsertDeleteSObject(t *testing.T) {
+	t.Skip("unavailable due to storage limits exceeded error for the test instance")
+
 	fapi := createTest()
 	objectId := insertSObject(fapi, t)
 	deleteSObject(fapi, t, objectId)

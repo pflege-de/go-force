@@ -3,6 +3,8 @@ package force
 import (
 	"fmt"
 	"net/http"
+
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -21,7 +23,8 @@ const (
 
 type ForceApi struct {
 	apiVersion             string
-	oauth                  *ForceOauth
+	instance               string
+	accessTokenSource      oauth2.TokenSource
 	apiResources           map[string]string
 	apiSObjects            map[string]*SObjectMetaData
 	apiSObjectDescriptions map[string]*SObjectDescription
@@ -30,13 +33,6 @@ type ForceApi struct {
 	logPrefix              string
 
 	httpClient *http.Client
-}
-
-type RefreshTokenResponse struct {
-	ID          string `json:"id"`
-	IssuedAt    string `json:"issued_at"`
-	Signature   string `json:"signature"`
-	AccessToken string `json:"access_token"`
 }
 
 type SObjectApiResponse struct {
@@ -198,44 +194,48 @@ func (forceApi *ForceApi) getApiSObjects() error {
 	return nil
 }
 
-func (forceApi *ForceApi) getApiSObjectDescriptions() error {
-	for name, metaData := range forceApi.apiSObjects {
-		uri := metaData.URLs[sObjectDescribeKey]
-
-		desc := &SObjectDescription{}
-		err := forceApi.Get(uri, nil, desc)
-		if err != nil {
-			return err
-		}
-
-		forceApi.apiSObjectDescriptions[name] = desc
-	}
-
-	return nil
-}
-
 func (forceApi *ForceApi) GetInstanceURL() string {
-	return forceApi.oauth.InstanceUrl
+	return forceApi.instance
 }
 
 func (forceApi *ForceApi) GetAccessToken() string {
-	return forceApi.oauth.AccessToken
+	token, err := forceApi.accessTokenSource.Token()
+
+	if err != nil {
+		// NOTE: it would be rather more sensible to return an error here,
+		// but we can't if we want to preserve backwards compatibility...
+		return ""
+	}
+
+	return token.AccessToken
 }
 
 func (forceApi *ForceApi) RefreshToken() error {
-	res := &RefreshTokenResponse{}
-	payload := map[string]string{
-		"grant_type":    "refresh_token",
-		"refresh_token": forceApi.oauth.refreshToken,
-		"client_id":     forceApi.oauth.clientId,
-		"client_secret": forceApi.oauth.clientSecret,
+	// NOTE: from now on, we support refreshing access tokens transparently;
+	// we leave it up to the token source to either return the the current
+	// (still valid) access token, obtain a new access token via the refresh
+	// token flow (if the underlying configuration allows it) or simply fall
+	// back to acquiring a new access token using the token exchange flow...
+
+	if _, err := forceApi.accessTokenSource.Token(); err != nil {
+		return fmt.Errorf("failed to acquire access token: %w", err)
 	}
 
-	err := forceApi.Post("/services/oauth2/token", nil, payload, res)
-	if err != nil {
-		return err
+	// NOTE: IMPORTANT: however, we still have to account for the case where the token is
+	// invalidated server-side prior to its expiry, which the token source cannot detect,
+	// unless it performs actual token introspection on demand -- which we do not assume.
+	//
+	// We therefore perform an actual request against the SalesForce API which will fail
+	// if the token returned by the token source is not considered valid by SalesForce.
+	//
+	// Of course, this will lead to the following request being made unnecessarily when
+	// the token source has indeed ascertained that the token has not been invalidated.
+	//
+	// But that is a low price to pay, given that a user of this library who knows that
+	// they provide such a token source has no reason to even call this method anyway.
+	if err := forceApi.getApiResources(); err != nil {
+		return fmt.Errorf("failed to ensure token validity")
 	}
 
-	forceApi.oauth.AccessToken = res.AccessToken
 	return nil
 }

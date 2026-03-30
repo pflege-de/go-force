@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pflege-de/go-force/forcejson"
+	"github.com/pflege-de/go-force/v2/forcejson"
 )
 
 const (
@@ -49,7 +49,7 @@ func (forceApi *ForceApi) Delete(path string, params url.Values) error {
 func (forceApi *ForceApi) NewRequest(method, path string, params url.Values) (*http.Request, error) {
 	// Build Uri
 	var uri bytes.Buffer
-	uri.WriteString(forceApi.oauth.InstanceUrl)
+	uri.WriteString(forceApi.instance)
 	uri.WriteString(path)
 	if len(params) != 0 {
 		uri.WriteString("?")
@@ -66,16 +66,19 @@ func (forceApi *ForceApi) NewRequest(method, path string, params url.Values) (*h
 	req.Header.Set("User-Agent", userAgent)
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", responseType)
-	req.Header.Set("Authorization", fmt.Sprintf("%v %v", "Bearer", forceApi.oauth.AccessToken))
+
+	token, err := forceApi.accessTokenSource.Token()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to acquire access token: %w", err)
+	}
+
+	token.SetAuthHeader(req)
 
 	return req, nil
 }
 
 func (forceApi *ForceApi) request(method, path string, params url.Values, payload, out interface{}) error {
-	if err := forceApi.oauth.Validate(); err != nil {
-		return fmt.Errorf("error creating %v request: %w", method, err)
-	}
-
 	req, err := forceApi.NewRequest(method, path, params)
 	if err != nil {
 		return err
@@ -100,7 +103,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	if err != nil {
 		return fmt.Errorf("error sending %v request: %w", method, err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint: errcheck
 	forceApi.traceResponse(resp)
 
 	// Sometimes the force API returns no body, we should catch this early
@@ -127,17 +130,6 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	apiErrors := ApiErrors{}
 	if marshalErr := forcejson.Unmarshal(respBytes, &apiErrors); marshalErr == nil {
 		if apiErrors.Validate() {
-			// Check if error is oauth token expired
-			if forceApi.oauth.Expired(apiErrors) {
-				// Reauthenticate then attempt query again
-				oauthErr := forceApi.oauth.Authenticate()
-				if oauthErr != nil {
-					return oauthErr
-				}
-
-				return forceApi.request(method, path, params, payload, out)
-			}
-
 			return apiErrors
 		}
 	}

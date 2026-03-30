@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pflege-de/go-force/sobjects"
+	"github.com/pflege-de/go-force/v2/sobjects"
 )
 
 const (
@@ -33,6 +33,8 @@ func TestQuery(t *testing.T) {
 }
 
 func TestQueryAll(t *testing.T) {
+	t.Skip("unavailable due to storage limits exceeded error for the test instance")
+
 	forceApi := createTest()
 	// First Insert and Delete an Account
 	newId := insertSObject(forceApi, t)
