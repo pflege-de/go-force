@@ -1,7 +1,9 @@
 package force
 
 import (
+	"errors"
 	"fmt"
+	"net"
 	"regexp"
 	"time"
 
@@ -18,6 +20,10 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration
 		interval = 2 * time.Second
 	}
 
+	const retryLimit = 10
+
+	var attempts int // TODO: refactor the entire retry logic once this method accepts a [context.Context].
+
 	for _, jobID := range op.JobIDs {
 		g.Go(func() error {
 			tt := time.Tick(interval)
@@ -25,10 +31,18 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration
 			var status *JobInfo
 			for range tt {
 				status = &JobInfo{}
-				err := forceApi.Get(statusURI, nil, status)
-				if err != nil {
+
+				if err := forceApi.Get(statusURI, nil, status); err != nil {
+					if _, ok := errors.AsType[net.Error](err); ok && attempts < retryLimit {
+						forceApi.trace("Network Error:", err.Error(), "%s")
+						attempts += 1 // NOTE: prevent infinite retry loop.
+						continue
+					}
+
 					return err
 				}
+
+				attempts = 0 // NOTE: `retryLimit` applies per (failed) request.
 
 				op.NumberRecordsFailed += status.NumberRecordsFailed
 				op.NumberRecordsProcessed += status.NumberRecordsProcessed
@@ -39,7 +53,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration
 				case "Failed":
 					jobFailed := FailedResultsError{}
 					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
-					err = forceApi.Get(failedResultURI, nil, jobFailed)
+					err := forceApi.Get(failedResultURI, nil, jobFailed)
 					if err != nil {
 						return err
 					}
