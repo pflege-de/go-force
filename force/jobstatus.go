@@ -22,10 +22,10 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration
 
 	const retryLimit = 10
 
-	var attempts int // TODO: refactor the entire retry logic once this method accepts a [context.Context].
-
 	for _, jobID := range op.JobIDs {
 		g.Go(func() error {
+			var attempts int // TODO: refactor the entire retry logic once this method accepts a [context.Context].
+
 			tt := time.Tick(interval)
 			statusURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s", forceApi.apiVersion, jobID)
 			var status *JobInfo
@@ -53,7 +53,7 @@ func (forceApi *ForceApi) CheckJobStatus(op JobOperation, interval time.Duration
 				case "Failed":
 					jobFailed := FailedResultsError{}
 					failedResultURI := fmt.Sprintf("/services/data/%s/jobs/ingest/%s/failedResults", forceApi.apiVersion, jobID)
-					err := forceApi.Get(failedResultURI, nil, jobFailed)
+					err := forceApi.Get(failedResultURI, nil, &jobFailed)
 					if err != nil {
 						return err
 					}
