@@ -106,7 +106,7 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		}))
 
 		reporter, messages := collectingProgressReporter(t)
-		op, err := fApi.CheckJobStatus(JobOperation{
+		_, err := fApi.CheckJobStatus(JobOperation{
 			JobIDs:           []string{jobID},
 			ProgressReporter: reporter,
 		}, testInterval)
@@ -119,7 +119,6 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		if got := calls.Load(); got != int32(len(states)) {
 			t.Fatalf("expected exactly %d calls, got %d", len(states), got)
 		}
-		_ = op
 	})
 
 	t.Run("Failed state with InvalidBatch and CSV description returns error", func(t *testing.T) {
@@ -181,7 +180,7 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 			ProgressReporter: reporter,
 		}, testInterval)
 		if err != nil {
-			t.Fatalf("expected no error, got: %v", err)
+			t.Fatalf("unexpected error: %v", err)
 		}
 		const wantCalls = 2 // 1 status poll + 1 failed-results fetch, no retry looping
 		if got := calls.Load(); got != wantCalls {
@@ -210,10 +209,11 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 			ProgressReporter: reporter,
 		}, testInterval)
 		if err != nil {
-			t.Fatalf("expected no error after retrying, got: %v", err)
+			t.Fatalf("unexpected error after retrying: %v", err)
 		}
-		if got := calls.Load(); got != 3 {
-			t.Fatalf("expected exactly 3 calls (2 failures + 1 success), got %d", got)
+		const wantCalls = 3 // 2 failures + 1 success
+		if got := calls.Load(); got != wantCalls {
+			t.Fatalf("expected exactly %d calls, got %d", wantCalls, got)
 		}
 	})
 
@@ -302,7 +302,7 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 			ProgressReporter: reporter,
 		}, testInterval)
 		if err != nil {
-			t.Fatalf("expected no error (attempts should reset after the successful poll), got: %v", err)
+			t.Fatalf("unexpected error (attempts should reset after the successful poll): %v", err)
 		}
 		const wantCalls = 14 // 2 failures + 1 success + 10 failures (reset budget) + 1 final success
 		if got := calls.Load(); got != wantCalls {
@@ -346,11 +346,11 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		if _, ok := errors.AsType[net.Error](err); !ok {
 			t.Fatalf("expected the returned error to surface as a net.Error, got %T: %v", err, err)
 		}
-		const wantFailingCalls = 11
+		const wantFailingCalls = 11 // 10 retries permitted + the 11th failure that gives up
 		if got := failingCalls.Load(); got != wantFailingCalls {
 			t.Fatalf("failing job: expected exactly %d calls, got %d (attempts budget may be shared across job IDs)", wantFailingCalls, got)
 		}
-		const wantSucceedingCalls = 2
+		const wantSucceedingCalls = 2 // 1 failure + 1 success
 		if got := succeedingCalls.Load(); got != wantSucceedingCalls {
 			t.Fatalf("succeeding job: expected exactly %d calls, got %d (retry budget may have been starved by the other job ID)", wantSucceedingCalls, got)
 		}
