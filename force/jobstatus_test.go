@@ -116,17 +116,23 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		if got := len(messages()); got != len(states) {
 			t.Fatalf("expected %d progress messages, got %d: %v", len(states), got, messages())
 		}
+		if got := calls.Load(); got != int32(len(states)) {
+			t.Fatalf("expected exactly %d calls, got %d", len(states), got)
+		}
 		_ = op
 	})
 
 	t.Run("Failed state with InvalidBatch and CSV description returns error", func(t *testing.T) {
 		const jobID = "12341234"
+		var calls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			switch r.URL.Path {
 			case statusURIFor(jobID):
+				calls.Add(1)
 				return jsonResponse(jobInfoJSON("Failed")), nil
 			case failedResultsURIFor(jobID):
+				calls.Add(1)
 				return jsonResponse(`{"error":"InvalidBatch","error_description":"Field name provided in CSV does not match any field"}`), nil
 			default:
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
@@ -145,16 +151,23 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		if _, ok := errors.AsType[FailedResultsError](err); !ok {
 			t.Fatalf("expected a FailedResultsError, got %T: %v", err, err)
 		}
+		const wantCalls = 2 // 1 status poll + 1 failed-results fetch, no retry looping
+		if got := calls.Load(); got != wantCalls {
+			t.Fatalf("expected exactly %d calls, got %d", wantCalls, got)
+		}
 	})
 
 	t.Run("Failed state with non-matching error returns nil", func(t *testing.T) {
 		const jobID = "12341234"
+		var calls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			switch r.URL.Path {
 			case statusURIFor(jobID):
+				calls.Add(1)
 				return jsonResponse(jobInfoJSON("Failed")), nil
 			case failedResultsURIFor(jobID):
+				calls.Add(1)
 				return jsonResponse(`{"error":"SomeOtherError","error_description":"unrelated failure"}`), nil
 			default:
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
@@ -169,6 +182,10 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		}, testInterval)
 		if err != nil {
 			t.Fatalf("expected no error, got: %v", err)
+		}
+		const wantCalls = 2 // 1 status poll + 1 failed-results fetch, no retry looping
+		if got := calls.Load(); got != wantCalls {
+			t.Fatalf("expected exactly %d calls, got %d", wantCalls, got)
 		}
 	})
 
