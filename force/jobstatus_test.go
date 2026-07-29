@@ -92,13 +92,13 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 	t.Run("all normal response states", func(t *testing.T) {
 		const jobID = "12341234"
 		states := []string{"Open", "InProgress", "UploadComplete", "JobComplete"}
-		var calls int32
+		var calls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			if r.URL.Path != statusURIFor(jobID) {
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
 			}
-			i := atomic.AddInt32(&calls, 1) - 1
+			i := calls.Add(1) - 1
 			if int(i) >= len(states) {
 				t.Fatalf("unexpected extra request after JobComplete (call #%d)", i+1)
 			}
@@ -174,13 +174,13 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 
 	t.Run("retries on net.Error and eventually succeeds", func(t *testing.T) {
 		const jobID = "12341234"
-		var calls int32
+		var calls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			if r.URL.Path != statusURIFor(jobID) {
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
 			}
-			n := atomic.AddInt32(&calls, 1)
+			n := calls.Add(1)
 			if n <= 2 {
 				return nil, netError()
 			}
@@ -195,20 +195,20 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error after retrying, got: %v", err)
 		}
-		if got := atomic.LoadInt32(&calls); got != 3 {
+		if got := calls.Load(); got != 3 {
 			t.Fatalf("expected exactly 3 calls (2 failures + 1 success), got %d", got)
 		}
 	})
 
 	t.Run("gives up after retryLimit consecutive net.Errors", func(t *testing.T) {
 		const jobID = "12341234"
-		var calls int32
+		var calls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			if r.URL.Path != statusURIFor(jobID) {
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
 			}
-			atomic.AddInt32(&calls, 1)
+			calls.Add(1)
 			return nil, netError()
 		}))
 
@@ -224,20 +224,49 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 			t.Fatalf("expected the returned error to surface as a net.Error, got %T: %v", err, err)
 		}
 		const wantCalls = 11 // 10 retries permitted + the 11th failure that gives up
-		if got := atomic.LoadInt32(&calls); got != wantCalls {
+		if got := calls.Load(); got != wantCalls {
 			t.Fatalf("expected exactly %d calls, got %d", wantCalls, got)
 		}
 	})
 
-	t.Run("attempts resets after a successful poll", func(t *testing.T) {
+	t.Run("non-network errors are returned without retrying", func(t *testing.T) {
 		const jobID = "12341234"
-		var calls int32
+		var calls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			if r.URL.Path != statusURIFor(jobID) {
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
 			}
-			n := atomic.AddInt32(&calls, 1)
+			calls.Add(1)
+			return jsonResponse("not valid json"), nil
+		}))
+
+		reporter, _ := collectingProgressReporter(t)
+		_, err := fApi.CheckJobStatus(JobOperation{
+			JobIDs:           []string{jobID},
+			ProgressReporter: reporter,
+		}, testInterval)
+		if err == nil {
+			t.Fatal("expected a non-network error to be returned, got nil")
+		}
+		if _, ok := errors.AsType[net.Error](err); ok {
+			t.Fatalf("expected a non-net.Error, got a net.Error: %v", err)
+		}
+		const wantCalls = 1
+		if got := calls.Load(); got != wantCalls {
+			t.Fatalf("expected exactly %d call (no retries for a non-network error), got %d", wantCalls, got)
+		}
+	})
+
+	t.Run("attempts resets after a successful poll", func(t *testing.T) {
+		const jobID = "12341234"
+		var calls atomic.Int32
+
+		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+			if r.URL.Path != statusURIFor(jobID) {
+				t.Fatalf("unexpected request path: %s", r.URL.Path)
+			}
+			n := calls.Add(1)
 			switch {
 			case n <= 2:
 				return nil, netError() // 2 failures, well under retryLimit
@@ -258,6 +287,10 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error (attempts should reset after the successful poll), got: %v", err)
 		}
+		const wantCalls = 14 // 2 failures + 1 success + 10 failures (reset budget) + 1 final success
+		if got := calls.Load(); got != wantCalls {
+			t.Fatalf("expected exactly %d calls (attempts should have reset after the successful poll), got %d", wantCalls, got)
+		}
 	})
 
 	t.Run("concurrent job IDs retry independently", func(t *testing.T) {
@@ -265,15 +298,15 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 			failingJobID    = "fail-1234"
 			succeedingJobID = "succeed-5678"
 		)
-		var failingCalls, succeedingCalls int32
+		var failingCalls, succeedingCalls atomic.Int32
 
 		fApi := newTestForceApi(roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 			switch r.URL.Path {
 			case statusURIFor(failingJobID):
-				atomic.AddInt32(&failingCalls, 1)
+				failingCalls.Add(1)
 				return nil, netError()
 			case statusURIFor(succeedingJobID):
-				n := atomic.AddInt32(&succeedingCalls, 1)
+				n := succeedingCalls.Add(1)
 				if n == 1 {
 					return nil, netError()
 				}
@@ -297,11 +330,11 @@ func TestForceApi_checkJobStatus(t *testing.T) {
 			t.Fatalf("expected the returned error to surface as a net.Error, got %T: %v", err, err)
 		}
 		const wantFailingCalls = 11
-		if got := atomic.LoadInt32(&failingCalls); got != wantFailingCalls {
+		if got := failingCalls.Load(); got != wantFailingCalls {
 			t.Fatalf("failing job: expected exactly %d calls, got %d (attempts budget may be shared across job IDs)", wantFailingCalls, got)
 		}
 		const wantSucceedingCalls = 2
-		if got := atomic.LoadInt32(&succeedingCalls); got != wantSucceedingCalls {
+		if got := succeedingCalls.Load(); got != wantSucceedingCalls {
 			t.Fatalf("succeeding job: expected exactly %d calls, got %d (retry budget may have been starved by the other job ID)", wantSucceedingCalls, got)
 		}
 	})
